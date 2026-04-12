@@ -1,6 +1,14 @@
+using JovenVision.Infrastructure.Context;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+var config = builder.Configuration.GetConnectionString(name: "DefaultConnection");
+
+builder.Services.AddDbContext<JovenVisionDbContext>(options =>
+    options.UseSqlServer(config));
+
 
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
