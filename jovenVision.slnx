@@ -1,5 +1,8 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="JovenVision.Api/JovenVision.Api.csproj" Id="0383dffc-c9d1-43d0-8059-87f4ae3a24ed" />
+    <Project Path="JovenVision.Application/JovenVision.Application.csproj" Id="b8886a77-7c3c-47ee-aeea-5308fa175d02" />
+    <Project Path="JovenVision.Domain/JovenVision.Domain.csproj" Id="4e84e915-b5fa-4c77-8e8a-4fa5842559fb" />
+    <Project Path="JovenVision.Infrastructure/JovenVision.Infrastructure.csproj" Id="c99daa4f-c0e4-492a-a7d5-c2211bb24499" />
   </Folder>
 </Solution>
