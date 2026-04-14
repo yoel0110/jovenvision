@@ -1,0 +1,13 @@
+﻿using JovenVision.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace JovenVision.Infrastructure.Interfaces
+{
+    public interface IUserRepository : IRepository<User>
+    {
+        Task<User> GetByUsernameAsync(string username);
+        Task<bool> ExistsAsync(string username);
+    }
+}
