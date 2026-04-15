@@ -1,4 +1,6 @@
 using JovenVision.Infrastructure.Context;
+using JovenVision.Infrastructure.Interfaces;
+using JovenVision.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +11,14 @@ var config = builder.Configuration.GetConnectionString(name: "DefaultConnection"
 builder.Services.AddDbContext<JovenVisionDbContext>(options =>
     options.UseSqlServer(config));
 
+
+builder.Services.AddScoped<IMemberRepository, MemberRepository>();
+builder.Services.AddScoped<IGroupRepository, GroupRepository>();
+builder.Services.AddScoped<IEventRepository, EventRepository>();
+builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
+builder.Services.AddScoped<ITrackingRepository, TrackingRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
