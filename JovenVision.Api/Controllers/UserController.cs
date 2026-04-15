@@ -17,37 +17,30 @@ namespace JovenVision.Api.Controllers
             _userService = userService;
         }
 
+        private static UserResponseDto ToDto(User u) => new()
+        {
+            Id = u.Id, Username = u.Username, Active = u.Active, RoleId = u.RoleId, MemberId = u.MemberId
+        };
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var users = await _userService.GetAllAsync();
-            var result = users.Select(u => new UserResponseDto
-            {
-                Id = u.Id,
-                Username = u.Username,
-                Active = u.Active,
-                RoleId = u.RoleId,
-                MemberId = u.MemberId
-            });
-            return Ok(ApiResponse<IEnumerable<UserResponseDto>>.Ok(result));
+            return Ok(ApiResponse<IEnumerable<UserResponseDto>>.Ok(users.Select(ToDto)));
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var user = await _userService.GetByIdAsync(id);
-            if (user is null)
-                return NotFound(ApiResponse<UserResponseDto>.Fail("Usuario no encontrado."));
-
-            var result = new UserResponseDto
+            try
             {
-                Id = user.Id,
-                Username = user.Username,
-                Active = user.Active,
-                RoleId = user.RoleId,
-                MemberId = user.MemberId
-            };
-            return Ok(ApiResponse<UserResponseDto>.Ok(result));
+                var user = await _userService.GetByIdAsync(id);
+                return Ok(ApiResponse<UserResponseDto>.Ok(ToDto(user)));
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ApiResponse<UserResponseDto>.Fail(ex.Message));
+            }
         }
 
         [HttpPost]
@@ -64,21 +57,14 @@ namespace JovenVision.Api.Controllers
             var user = new User
             {
                 Username = dto.Username,
-                PasswordHash = BCrypt(dto.Password),
+                PasswordHash = HashPassword(dto.Password),
                 Active = true,
                 RoleId = dto.RoleId,
                 MemberId = dto.MemberId
             };
             await _userService.AddAsync(user);
             return CreatedAtAction(nameof(GetById), new { id = user.Id },
-                ApiResponse<UserResponseDto>.Ok(new UserResponseDto
-                {
-                    Id = user.Id,
-                    Username = user.Username,
-                    Active = user.Active,
-                    RoleId = user.RoleId,
-                    MemberId = user.MemberId
-                }, "Usuario creado correctamente."));
+                ApiResponse<UserResponseDto>.Ok(ToDto(user), "Usuario creado correctamente."));
         }
 
         [HttpPut("{id}")]
@@ -88,32 +74,33 @@ namespace JovenVision.Api.Controllers
                 return BadRequest(ApiResponse<UserResponseDto>.Fail("Datos inválidos.",
                     ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
 
-            var existing = await _userService.GetByIdAsync(id);
-            if (existing is null)
-                return NotFound(ApiResponse<UserResponseDto>.Fail("Usuario no encontrado."));
-
-            existing.Username = dto.Username;
-            existing.PasswordHash = BCrypt(dto.Password);
-            existing.RoleId = dto.RoleId;
-            existing.MemberId = dto.MemberId;
-
-            await _userService.UpdateAsync(existing);
-            return Ok(ApiResponse<string>.Ok(null!, "Usuario actualizado correctamente."));
+            try
+            {
+                var user = new User { Id = id, Username = dto.Username, PasswordHash = HashPassword(dto.Password), RoleId = dto.RoleId, MemberId = dto.MemberId };
+                await _userService.UpdateAsync(user);
+                return Ok(ApiResponse<string>.Ok(null!, "Usuario actualizado correctamente."));
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ApiResponse<string>.Fail(ex.Message));
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var existing = await _userService.GetByIdAsync(id);
-            if (existing is null)
-                return NotFound(ApiResponse<string>.Fail("Usuario no encontrado."));
-
-            await _userService.DeleteAsync(id);
-            return Ok(ApiResponse<string>.Ok(null!, "Usuario eliminado correctamente."));
+            try
+            {
+                await _userService.DeleteAsync(id);
+                return Ok(ApiResponse<string>.Ok(null!, "Usuario eliminado correctamente."));
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ApiResponse<string>.Fail(ex.Message));
+            }
         }
 
-        // Simple hash placeholder — replace with a proper BCrypt package when auth is implemented.
-        private static string BCrypt(string password) =>
+        private static string HashPassword(string password) =>
             Convert.ToBase64String(System.Security.Cryptography.SHA256.HashData(
                 System.Text.Encoding.UTF8.GetBytes(password)));
     }

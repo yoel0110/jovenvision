@@ -17,52 +17,37 @@ namespace JovenVision.Api.Controllers
             _trackingService = trackingService;
         }
 
+        private static TrackingResponseDto ToDto(Tracking t) => new()
+        {
+            Id = t.Id, Description = t.Description, Date = t.Date, Type = t.Type, MemberId = t.MemberId
+        };
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var trackings = await _trackingService.GetAllAsync();
-            var result = trackings.Select(t => new TrackingResponseDto
-            {
-                Id = t.Id,
-                Description = t.Description,
-                Date = t.Date,
-                Type = t.Type,
-                MemberId = t.MemberId
-            });
-            return Ok(ApiResponse<IEnumerable<TrackingResponseDto>>.Ok(result));
+            var list = await _trackingService.GetAllAsync();
+            return Ok(ApiResponse<IEnumerable<TrackingResponseDto>>.Ok(list.Select(ToDto)));
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var tracking = await _trackingService.GetByIdAsync(id);
-            if (tracking is null)
-                return NotFound(ApiResponse<TrackingResponseDto>.Fail("Seguimiento no encontrado."));
-
-            var result = new TrackingResponseDto
+            try
             {
-                Id = tracking.Id,
-                Description = tracking.Description,
-                Date = tracking.Date,
-                Type = tracking.Type,
-                MemberId = tracking.MemberId
-            };
-            return Ok(ApiResponse<TrackingResponseDto>.Ok(result));
+                var tracking = await _trackingService.GetByIdAsync(id);
+                return Ok(ApiResponse<TrackingResponseDto>.Ok(ToDto(tracking)));
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ApiResponse<TrackingResponseDto>.Fail(ex.Message));
+            }
         }
 
         [HttpGet("member/{memberId}")]
         public async Task<IActionResult> GetByMember(int memberId)
         {
-            var trackings = await _trackingService.GetByMemberAsync(memberId);
-            var result = trackings.Select(t => new TrackingResponseDto
-            {
-                Id = t.Id,
-                Description = t.Description,
-                Date = t.Date,
-                Type = t.Type,
-                MemberId = t.MemberId
-            });
-            return Ok(ApiResponse<IEnumerable<TrackingResponseDto>>.Ok(result));
+            var list = await _trackingService.GetByMemberAsync(memberId);
+            return Ok(ApiResponse<IEnumerable<TrackingResponseDto>>.Ok(list.Select(ToDto)));
         }
 
         [HttpPost]
@@ -72,23 +57,17 @@ namespace JovenVision.Api.Controllers
                 return BadRequest(ApiResponse<TrackingResponseDto>.Fail("Datos inválidos.",
                     ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
 
-            var tracking = new Tracking
+            try
             {
-                Description = dto.Description,
-                Date = dto.Date,
-                Type = dto.Type,
-                MemberId = dto.MemberId
-            };
-            await _trackingService.AddAsync(tracking);
-            return CreatedAtAction(nameof(GetById), new { id = tracking.Id },
-                ApiResponse<TrackingResponseDto>.Ok(new TrackingResponseDto
-                {
-                    Id = tracking.Id,
-                    Description = tracking.Description,
-                    Date = tracking.Date,
-                    Type = tracking.Type,
-                    MemberId = tracking.MemberId
-                }, "Seguimiento creado correctamente."));
+                var tracking = new Tracking { Description = dto.Description, Date = dto.Date, Type = dto.Type, MemberId = dto.MemberId };
+                await _trackingService.AddAsync(tracking);
+                return CreatedAtAction(nameof(GetById), new { id = tracking.Id },
+                    ApiResponse<TrackingResponseDto>.Ok(ToDto(tracking), "Seguimiento creado correctamente."));
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ApiResponse<TrackingResponseDto>.Fail(ex.Message));
+            }
         }
 
         [HttpPut("{id}")]
@@ -98,28 +77,30 @@ namespace JovenVision.Api.Controllers
                 return BadRequest(ApiResponse<TrackingResponseDto>.Fail("Datos inválidos.",
                     ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
 
-            var existing = await _trackingService.GetByIdAsync(id);
-            if (existing is null)
-                return NotFound(ApiResponse<TrackingResponseDto>.Fail("Seguimiento no encontrado."));
-
-            existing.Description = dto.Description;
-            existing.Date = dto.Date;
-            existing.Type = dto.Type;
-            existing.MemberId = dto.MemberId;
-
-            await _trackingService.UpdateAsync(existing);
-            return Ok(ApiResponse<string>.Ok(null!, "Seguimiento actualizado correctamente."));
+            try
+            {
+                var tracking = new Tracking { Id = id, Description = dto.Description, Date = dto.Date, Type = dto.Type, MemberId = dto.MemberId };
+                await _trackingService.UpdateAsync(tracking);
+                return Ok(ApiResponse<string>.Ok(null!, "Seguimiento actualizado correctamente."));
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ApiResponse<string>.Fail(ex.Message));
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var existing = await _trackingService.GetByIdAsync(id);
-            if (existing is null)
-                return NotFound(ApiResponse<string>.Fail("Seguimiento no encontrado."));
-
-            await _trackingService.DeleteAsync(id);
-            return Ok(ApiResponse<string>.Ok(null!, "Seguimiento eliminado correctamente."));
+            try
+            {
+                await _trackingService.DeleteAsync(id);
+                return Ok(ApiResponse<string>.Ok(null!, "Seguimiento eliminado correctamente."));
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ApiResponse<string>.Fail(ex.Message));
+            }
         }
     }
 }

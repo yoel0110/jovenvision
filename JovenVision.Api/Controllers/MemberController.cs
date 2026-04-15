@@ -17,52 +17,37 @@ namespace JovenVision.Api.Controllers
             _memberService = memberService;
         }
 
+        private static MemberResponseDto ToDto(Member m) => new()
+        {
+            Id = m.Id, Name = m.Name, Email = m.Email, Phone = m.Phone, Status = m.Status
+        };
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var members = await _memberService.GetAllAsync();
-            var result = members.Select(m => new MemberResponseDto
-            {
-                Id = m.Id,
-                Name = m.Name,
-                Email = m.Email,
-                Phone = m.Phone,
-                Status = m.Status
-            });
-            return Ok(ApiResponse<IEnumerable<MemberResponseDto>>.Ok(result));
+            return Ok(ApiResponse<IEnumerable<MemberResponseDto>>.Ok(members.Select(ToDto)));
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var member = await _memberService.GetByIdAsync(id);
-            if (member is null)
-                return NotFound(ApiResponse<MemberResponseDto>.Fail("Miembro no encontrado."));
-
-            var result = new MemberResponseDto
+            try
             {
-                Id = member.Id,
-                Name = member.Name,
-                Email = member.Email,
-                Phone = member.Phone,
-                Status = member.Status
-            };
-            return Ok(ApiResponse<MemberResponseDto>.Ok(result));
+                var member = await _memberService.GetByIdAsync(id);
+                return Ok(ApiResponse<MemberResponseDto>.Ok(ToDto(member)));
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ApiResponse<MemberResponseDto>.Fail(ex.Message));
+            }
         }
 
         [HttpGet("status/{status}")]
         public async Task<IActionResult> GetByStatus(string status)
         {
             var members = await _memberService.GetByStatusAsync(status);
-            var result = members.Select(m => new MemberResponseDto
-            {
-                Id = m.Id,
-                Name = m.Name,
-                Email = m.Email,
-                Phone = m.Phone,
-                Status = m.Status
-            });
-            return Ok(ApiResponse<IEnumerable<MemberResponseDto>>.Ok(result));
+            return Ok(ApiResponse<IEnumerable<MemberResponseDto>>.Ok(members.Select(ToDto)));
         }
 
         [HttpGet("{id}/history")]
@@ -79,23 +64,10 @@ namespace JovenVision.Api.Controllers
                 return BadRequest(ApiResponse<MemberResponseDto>.Fail("Datos inválidos.",
                     ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
 
-            var member = new Member
-            {
-                Name = dto.Name,
-                Email = dto.Email,
-                Phone = dto.Phone ?? string.Empty,
-                Status = dto.Status
-            };
+            var member = new Member { Name = dto.Name, Email = dto.Email, Phone = dto.Phone ?? string.Empty, Status = dto.Status };
             await _memberService.AddAsync(member);
             return CreatedAtAction(nameof(GetById), new { id = member.Id },
-                ApiResponse<MemberResponseDto>.Ok(new MemberResponseDto
-                {
-                    Id = member.Id,
-                    Name = member.Name,
-                    Email = member.Email,
-                    Phone = member.Phone,
-                    Status = member.Status
-                }, "Miembro creado correctamente."));
+                ApiResponse<MemberResponseDto>.Ok(ToDto(member), "Miembro creado correctamente."));
         }
 
         [HttpPut("{id}")]
@@ -105,28 +77,30 @@ namespace JovenVision.Api.Controllers
                 return BadRequest(ApiResponse<MemberResponseDto>.Fail("Datos inválidos.",
                     ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
 
-            var existing = await _memberService.GetByIdAsync(id);
-            if (existing is null)
-                return NotFound(ApiResponse<MemberResponseDto>.Fail("Miembro no encontrado."));
-
-            existing.Name = dto.Name;
-            existing.Email = dto.Email;
-            existing.Phone = dto.Phone ?? string.Empty;
-            existing.Status = dto.Status;
-
-            await _memberService.UpdateAsync(existing);
-            return Ok(ApiResponse<string>.Ok(null!, "Miembro actualizado correctamente."));
+            try
+            {
+                var member = new Member { Id = id, Name = dto.Name, Email = dto.Email, Phone = dto.Phone ?? string.Empty, Status = dto.Status };
+                await _memberService.UpdateAsync(member);
+                return Ok(ApiResponse<string>.Ok(null!, "Miembro actualizado correctamente."));
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ApiResponse<string>.Fail(ex.Message));
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var existing = await _memberService.GetByIdAsync(id);
-            if (existing is null)
-                return NotFound(ApiResponse<string>.Fail("Miembro no encontrado."));
-
-            await _memberService.DeleteAsync(id);
-            return Ok(ApiResponse<string>.Ok(null!, "Miembro eliminado correctamente."));
+            try
+            {
+                await _memberService.DeleteAsync(id);
+                return Ok(ApiResponse<string>.Ok(null!, "Miembro eliminado correctamente."));
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ApiResponse<string>.Fail(ex.Message));
+            }
         }
     }
 }

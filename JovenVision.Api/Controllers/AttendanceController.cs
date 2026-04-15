@@ -17,67 +17,45 @@ namespace JovenVision.Api.Controllers
             _attendanceService = attendanceService;
         }
 
+        private static AttendanceResponseDto ToDto(Attendance a) => new()
+        {
+            Id = a.Id, MemberId = a.MemberId, EventId = a.EventId,
+            Status = a.Status, RegisteredAt = a.RegisteredAt
+        };
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var attendances = await _attendanceService.GetAllAsync();
-            var result = attendances.Select(a => new AttendanceResponseDto
-            {
-                Id = a.Id,
-                MemberId = a.MemberId,
-                EventId = a.EventId,
-                Status = a.Status,
-                RegisteredAt = a.RegisteredAt
-            });
-            return Ok(ApiResponse<IEnumerable<AttendanceResponseDto>>.Ok(result));
+            var list = await _attendanceService.GetAllAsync();
+            return Ok(ApiResponse<IEnumerable<AttendanceResponseDto>>.Ok(list.Select(ToDto)));
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var attendance = await _attendanceService.GetByIdAsync(id);
-            if (attendance is null)
-                return NotFound(ApiResponse<AttendanceResponseDto>.Fail("Asistencia no encontrada."));
-
-            var result = new AttendanceResponseDto
+            try
             {
-                Id = attendance.Id,
-                MemberId = attendance.MemberId,
-                EventId = attendance.EventId,
-                Status = attendance.Status,
-                RegisteredAt = attendance.RegisteredAt
-            };
-            return Ok(ApiResponse<AttendanceResponseDto>.Ok(result));
+                var attendance = await _attendanceService.GetByIdAsync(id);
+                return Ok(ApiResponse<AttendanceResponseDto>.Ok(ToDto(attendance)));
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ApiResponse<AttendanceResponseDto>.Fail(ex.Message));
+            }
         }
 
         [HttpGet("event/{eventId}")]
         public async Task<IActionResult> GetByEvent(int eventId)
         {
-            var attendances = await _attendanceService.GetByEventAsync(eventId);
-            var result = attendances.Select(a => new AttendanceResponseDto
-            {
-                Id = a.Id,
-                MemberId = a.MemberId,
-                EventId = a.EventId,
-                Status = a.Status,
-                RegisteredAt = a.RegisteredAt
-            });
-            return Ok(ApiResponse<IEnumerable<AttendanceResponseDto>>.Ok(result));
+            var list = await _attendanceService.GetByEventAsync(eventId);
+            return Ok(ApiResponse<IEnumerable<AttendanceResponseDto>>.Ok(list.Select(ToDto)));
         }
 
         [HttpGet("member/{memberId}")]
         public async Task<IActionResult> GetByMember(int memberId)
         {
-            var attendances = await _attendanceService.GetByMemberAsync(memberId);
-            var result = attendances.Select(a => new AttendanceResponseDto
-            {
-                Id = a.Id,
-                MemberId = a.MemberId,
-                EventId = a.EventId,
-                Status = a.Status,
-                RegisteredAt = a.RegisteredAt
-            });
-            return Ok(ApiResponse<IEnumerable<AttendanceResponseDto>>.Ok(result));
+            var list = await _attendanceService.GetByMemberAsync(memberId);
+            return Ok(ApiResponse<IEnumerable<AttendanceResponseDto>>.Ok(list.Select(ToDto)));
         }
 
         [HttpPost]
@@ -89,22 +67,14 @@ namespace JovenVision.Api.Controllers
 
             try
             {
-                var attendance = new Attendance
-                {
-                    MemberId = dto.MemberId,
-                    EventId = dto.EventId,
-                    Status = dto.Status
-                };
+                var attendance = new Attendance { MemberId = dto.MemberId, EventId = dto.EventId, Status = dto.Status };
                 await _attendanceService.RegisterAsync(attendance);
                 return CreatedAtAction(nameof(GetById), new { id = attendance.Id },
-                    ApiResponse<AttendanceResponseDto>.Ok(new AttendanceResponseDto
-                    {
-                        Id = attendance.Id,
-                        MemberId = attendance.MemberId,
-                        EventId = attendance.EventId,
-                        Status = attendance.Status,
-                        RegisteredAt = attendance.RegisteredAt
-                    }, "Asistencia registrada correctamente."));
+                    ApiResponse<AttendanceResponseDto>.Ok(ToDto(attendance), "Asistencia registrada correctamente."));
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ApiResponse<AttendanceResponseDto>.Fail(ex.Message));
             }
             catch (InvalidOperationException ex)
             {
@@ -119,27 +89,30 @@ namespace JovenVision.Api.Controllers
                 return BadRequest(ApiResponse<AttendanceResponseDto>.Fail("Datos inválidos.",
                     ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
 
-            var existing = await _attendanceService.GetByIdAsync(id);
-            if (existing is null)
-                return NotFound(ApiResponse<AttendanceResponseDto>.Fail("Asistencia no encontrada."));
-
-            existing.MemberId = dto.MemberId;
-            existing.EventId = dto.EventId;
-            existing.Status = dto.Status;
-
-            await _attendanceService.UpdateAsync(existing);
-            return Ok(ApiResponse<string>.Ok(null!, "Asistencia actualizada correctamente."));
+            try
+            {
+                var attendance = new Attendance { Id = id, MemberId = dto.MemberId, EventId = dto.EventId, Status = dto.Status };
+                await _attendanceService.UpdateAsync(attendance);
+                return Ok(ApiResponse<string>.Ok(null!, "Asistencia actualizada correctamente."));
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ApiResponse<string>.Fail(ex.Message));
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var existing = await _attendanceService.GetByIdAsync(id);
-            if (existing is null)
-                return NotFound(ApiResponse<string>.Fail("Asistencia no encontrada."));
-
-            await _attendanceService.DeleteAsync(id);
-            return Ok(ApiResponse<string>.Ok(null!, "Asistencia eliminada correctamente."));
+            try
+            {
+                await _attendanceService.DeleteAsync(id);
+                return Ok(ApiResponse<string>.Ok(null!, "Asistencia eliminada correctamente."));
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ApiResponse<string>.Fail(ex.Message));
+            }
         }
     }
 }

@@ -1,3 +1,4 @@
+using JovenVision.Application.Common;
 using JovenVision.Application.Services.Interfaces;
 using JovenVision.Domain.Entities;
 using JovenVision.Infrastructure.Interfaces;
@@ -16,17 +17,29 @@ namespace JovenVision.Application.Services
         public Task<IEnumerable<Member>> GetAllAsync() =>
             _memberRepository.GetAllAsync();
 
-        public Task<Member> GetByIdAsync(int id) =>
-            _memberRepository.GetByIdAsync(id);
+        public async Task<Member> GetByIdAsync(int id)
+        {
+            var member = await _memberRepository.GetByIdAsync(id);
+            if (member is null) throw new NotFoundException("Miembro", id);
+            return member;
+        }
 
         public Task AddAsync(Member member) =>
             _memberRepository.AddAsync(member);
 
-        public Task UpdateAsync(Member member) =>
-            _memberRepository.UpdateAsync(member);
+        public async Task UpdateAsync(Member member)
+        {
+            var existing = await _memberRepository.GetByIdAsync(member.Id);
+            if (existing is null) throw new NotFoundException("Miembro", member.Id);
+            await _memberRepository.UpdateAsync(member);
+        }
 
-        public Task DeleteAsync(int id) =>
-            _memberRepository.DeleteAsync(id);
+        public async Task DeleteAsync(int id)
+        {
+            var existing = await _memberRepository.GetByIdAsync(id);
+            if (existing is null) throw new NotFoundException("Miembro", id);
+            await _memberRepository.DeleteAsync(id);
+        }
 
         public Task<IEnumerable<Member>> GetByStatusAsync(string status) =>
             _memberRepository.GetByStatusAsync(status);

@@ -1,3 +1,4 @@
+using JovenVision.Application.Common;
 using JovenVision.Application.Services.Interfaces;
 using JovenVision.Domain.Entities;
 using JovenVision.Infrastructure.Interfaces;
@@ -16,17 +17,29 @@ namespace JovenVision.Application.Services
         public Task<IEnumerable<Group>> GetAllAsync() =>
             _groupRepository.GetAllAsync();
 
-        public Task<Group> GetByIdAsync(int id) =>
-            _groupRepository.GetByIdAsync(id);
+        public async Task<Group> GetByIdAsync(int id)
+        {
+            var group = await _groupRepository.GetByIdAsync(id);
+            if (group is null) throw new NotFoundException("Grupo", id);
+            return group;
+        }
 
         public Task AddAsync(Group group) =>
             _groupRepository.AddAsync(group);
 
-        public Task UpdateAsync(Group group) =>
-            _groupRepository.UpdateAsync(group);
+        public async Task UpdateAsync(Group group)
+        {
+            var existing = await _groupRepository.GetByIdAsync(group.Id);
+            if (existing is null) throw new NotFoundException("Grupo", group.Id);
+            await _groupRepository.UpdateAsync(group);
+        }
 
-        public Task DeleteAsync(int id) =>
-            _groupRepository.DeleteAsync(id);
+        public async Task DeleteAsync(int id)
+        {
+            var existing = await _groupRepository.GetByIdAsync(id);
+            if (existing is null) throw new NotFoundException("Grupo", id);
+            await _groupRepository.DeleteAsync(id);
+        }
 
         public Task<IEnumerable<Member>> GetMembersAsync(int groupId) =>
             _groupRepository.GetMembersAsync(groupId);
