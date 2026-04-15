@@ -21,23 +21,21 @@ namespace JovenVision.Api.Controllers
         public async Task<IActionResult> GetAll()
         {
             var roles = await _roleService.GetAllAsync();
-            var result = roles.Select(r => new RoleResponseDto
-            {
-                Id = r.Id,
-                Name = r.Name
-            });
-            return Ok(ApiResponse<IEnumerable<RoleResponseDto>>.Ok(result));
+            return Ok(ApiResponse<IEnumerable<RoleResponseDto>>.Ok(roles.Select(r => new RoleResponseDto { Id = r.Id, Name = r.Name })));
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var role = await _roleService.GetByIdAsync(id);
-            if (role is null)
-                return NotFound(ApiResponse<RoleResponseDto>.Fail("Rol no encontrado."));
-
-            var result = new RoleResponseDto { Id = role.Id, Name = role.Name };
-            return Ok(ApiResponse<RoleResponseDto>.Ok(result));
+            try
+            {
+                var role = await _roleService.GetByIdAsync(id);
+                return Ok(ApiResponse<RoleResponseDto>.Ok(new RoleResponseDto { Id = role.Id, Name = role.Name }));
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ApiResponse<RoleResponseDto>.Fail(ex.Message));
+            }
         }
 
         [HttpPost]
@@ -50,8 +48,7 @@ namespace JovenVision.Api.Controllers
             var role = new Role { Name = dto.Name };
             await _roleService.AddAsync(role);
             return CreatedAtAction(nameof(GetById), new { id = role.Id },
-                ApiResponse<RoleResponseDto>.Ok(new RoleResponseDto { Id = role.Id, Name = role.Name },
-                    "Rol creado correctamente."));
+                ApiResponse<RoleResponseDto>.Ok(new RoleResponseDto { Id = role.Id, Name = role.Name }, "Rol creado correctamente."));
         }
 
         [HttpPut("{id}")]
@@ -61,24 +58,30 @@ namespace JovenVision.Api.Controllers
                 return BadRequest(ApiResponse<RoleResponseDto>.Fail("Datos inválidos.",
                     ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
 
-            var existing = await _roleService.GetByIdAsync(id);
-            if (existing is null)
-                return NotFound(ApiResponse<RoleResponseDto>.Fail("Rol no encontrado."));
-
-            existing.Name = dto.Name;
-            await _roleService.UpdateAsync(existing);
-            return Ok(ApiResponse<string>.Ok(null!, "Rol actualizado correctamente."));
+            try
+            {
+                var role = new Role { Id = id, Name = dto.Name };
+                await _roleService.UpdateAsync(role);
+                return Ok(ApiResponse<string>.Ok(null!, "Rol actualizado correctamente."));
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ApiResponse<string>.Fail(ex.Message));
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var existing = await _roleService.GetByIdAsync(id);
-            if (existing is null)
-                return NotFound(ApiResponse<string>.Fail("Rol no encontrado."));
-
-            await _roleService.DeleteAsync(id);
-            return Ok(ApiResponse<string>.Ok(null!, "Rol eliminado correctamente."));
+            try
+            {
+                await _roleService.DeleteAsync(id);
+                return Ok(ApiResponse<string>.Ok(null!, "Rol eliminado correctamente."));
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ApiResponse<string>.Fail(ex.Message));
+            }
         }
     }
 }

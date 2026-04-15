@@ -18,49 +18,37 @@ namespace JovenVision.Api.Controllers
             _groupService = groupService;
         }
 
+        private static GroupResponseDto ToDto(Group g) => new()
+        {
+            Id = g.Id, Name = g.Name, Description = g.Description, Capacity = g.Capacity
+        };
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var groups = await _groupService.GetAllAsync();
-            var result = groups.Select(g => new GroupResponseDto
-            {
-                Id = g.Id,
-                Name = g.Name,
-                Description = g.Description,
-                Capacity = g.Capacity
-            });
-            return Ok(ApiResponse<IEnumerable<GroupResponseDto>>.Ok(result));
+            return Ok(ApiResponse<IEnumerable<GroupResponseDto>>.Ok(groups.Select(ToDto)));
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var group = await _groupService.GetByIdAsync(id);
-            if (group is null)
-                return NotFound(ApiResponse<GroupResponseDto>.Fail("Grupo no encontrado."));
-
-            var result = new GroupResponseDto
+            try
             {
-                Id = group.Id,
-                Name = group.Name,
-                Description = group.Description,
-                Capacity = group.Capacity
-            };
-            return Ok(ApiResponse<GroupResponseDto>.Ok(result));
+                var group = await _groupService.GetByIdAsync(id);
+                return Ok(ApiResponse<GroupResponseDto>.Ok(ToDto(group)));
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ApiResponse<GroupResponseDto>.Fail(ex.Message));
+            }
         }
 
         [HttpGet("{id}/members")]
         public async Task<IActionResult> GetMembers(int id)
         {
             var members = await _groupService.GetMembersAsync(id);
-            var result = members.Select(m => new MemberResponseDto
-            {
-                Id = m.Id,
-                Name = m.Name,
-                Email = m.Email,
-                Phone = m.Phone,
-                Status = m.Status
-            });
+            var result = members.Select(m => new MemberResponseDto { Id = m.Id, Name = m.Name, Email = m.Email, Phone = m.Phone, Status = m.Status });
             return Ok(ApiResponse<IEnumerable<MemberResponseDto>>.Ok(result));
         }
 
@@ -71,21 +59,10 @@ namespace JovenVision.Api.Controllers
                 return BadRequest(ApiResponse<GroupResponseDto>.Fail("Datos inválidos.",
                     ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
 
-            var group = new Group
-            {
-                Name = dto.Name,
-                Description = dto.Description ?? string.Empty,
-                Capacity = dto.Capacity
-            };
+            var group = new Group { Name = dto.Name, Description = dto.Description ?? string.Empty, Capacity = dto.Capacity };
             await _groupService.AddAsync(group);
             return CreatedAtAction(nameof(GetById), new { id = group.Id },
-                ApiResponse<GroupResponseDto>.Ok(new GroupResponseDto
-                {
-                    Id = group.Id,
-                    Name = group.Name,
-                    Description = group.Description,
-                    Capacity = group.Capacity
-                }, "Grupo creado correctamente."));
+                ApiResponse<GroupResponseDto>.Ok(ToDto(group), "Grupo creado correctamente."));
         }
 
         [HttpPut("{id}")]
@@ -95,27 +72,30 @@ namespace JovenVision.Api.Controllers
                 return BadRequest(ApiResponse<GroupResponseDto>.Fail("Datos inválidos.",
                     ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
 
-            var existing = await _groupService.GetByIdAsync(id);
-            if (existing is null)
-                return NotFound(ApiResponse<GroupResponseDto>.Fail("Grupo no encontrado."));
-
-            existing.Name = dto.Name;
-            existing.Description = dto.Description ?? string.Empty;
-            existing.Capacity = dto.Capacity;
-
-            await _groupService.UpdateAsync(existing);
-            return Ok(ApiResponse<string>.Ok(null!, "Grupo actualizado correctamente."));
+            try
+            {
+                var group = new Group { Id = id, Name = dto.Name, Description = dto.Description ?? string.Empty, Capacity = dto.Capacity };
+                await _groupService.UpdateAsync(group);
+                return Ok(ApiResponse<string>.Ok(null!, "Grupo actualizado correctamente."));
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ApiResponse<string>.Fail(ex.Message));
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var existing = await _groupService.GetByIdAsync(id);
-            if (existing is null)
-                return NotFound(ApiResponse<string>.Fail("Grupo no encontrado."));
-
-            await _groupService.DeleteAsync(id);
-            return Ok(ApiResponse<string>.Ok(null!, "Grupo eliminado correctamente."));
+            try
+            {
+                await _groupService.DeleteAsync(id);
+                return Ok(ApiResponse<string>.Ok(null!, "Grupo eliminado correctamente."));
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ApiResponse<string>.Fail(ex.Message));
+            }
         }
 
         [HttpPost("{groupId}/members/{memberId}")]
