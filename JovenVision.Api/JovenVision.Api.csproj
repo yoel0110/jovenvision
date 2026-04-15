@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\JovenVision.Application\JovenVision.Application.csproj" />
+    <ProjectReference Include="..\JovenVision.Infrastructure\JovenVision.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
