@@ -13,11 +13,22 @@ namespace JovenVision.Application.Services
             _trackingRepository = trackingRepository;
         }
 
-        public Task<IEnumerable<Tracking>> GetAllAsync() => _trackingRepository.GetAllAsync();
-        public Task<Tracking> GetByIdAsync(int id) => _trackingRepository.GetByIdAsync(id);
-        public Task AddAsync(Tracking tracking) => _trackingRepository.AddAsync(tracking);
-        public Task UpdateAsync(Tracking tracking) => _trackingRepository.UpdateAsync(tracking);
-        public Task DeleteAsync(int id) => _trackingRepository.DeleteAsync(id);
-        public Task<IEnumerable<Tracking>> GetByMemberAsync(int memberId) => _trackingRepository.GetByMemberAsync(memberId);
+        public Task<IEnumerable<Tracking>> GetAllAsync() =>
+            _trackingRepository.GetAllAsync();
+
+        public Task<Tracking> GetByIdAsync(int id) =>
+            _trackingRepository.GetByIdAsync(id);
+
+        public Task AddAsync(Tracking tracking) =>
+            _trackingRepository.AddAsync(tracking);
+
+        public Task UpdateAsync(Tracking tracking) =>
+            _trackingRepository.UpdateAsync(tracking);
+
+        public Task DeleteAsync(int id) =>
+            _trackingRepository.DeleteAsync(id);
+
+        public Task<IEnumerable<Tracking>> GetByMemberAsync(int memberId) =>
+            _trackingRepository.GetByMemberAsync(memberId);
     }
 }

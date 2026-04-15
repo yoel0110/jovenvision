@@ -13,11 +13,22 @@ namespace JovenVision.Application.Services
             _roleRepository = roleRepository;
         }
 
-        public Task<IEnumerable<Role>> GetAllAsync() => _roleRepository.GetAllAsync();
-        public Task<Role> GetByIdAsync(int id) => _roleRepository.GetByIdAsync(id);
-        public Task AddAsync(Role role) => _roleRepository.AddAsync(role);
-        public Task UpdateAsync(Role role) => _roleRepository.UpdateAsync(role);
-        public Task DeleteAsync(int id) => _roleRepository.DeleteAsync(id);
-        public Task<Role> GetByNameAsync(string name) => _roleRepository.GetByNameAsync(name);
+        public Task<IEnumerable<Role>> GetAllAsync() =>
+            _roleRepository.GetAllAsync();
+
+        public Task<Role> GetByIdAsync(int id) =>
+            _roleRepository.GetByIdAsync(id);
+
+        public Task AddAsync(Role role) =>
+            _roleRepository.AddAsync(role);
+
+        public Task UpdateAsync(Role role) =>
+            _roleRepository.UpdateAsync(role);
+
+        public Task DeleteAsync(int id) =>
+            _roleRepository.DeleteAsync(id);
+
+        public Task<Role> GetByNameAsync(string name) =>
+            _roleRepository.GetByNameAsync(name);
     }
 }

@@ -13,12 +13,25 @@ namespace JovenVision.Application.Services
             _userRepository = userRepository;
         }
 
-        public Task<IEnumerable<User>> GetAllAsync() => _userRepository.GetAllAsync();
-        public Task<User> GetByIdAsync(int id) => _userRepository.GetByIdAsync(id);
-        public Task AddAsync(User user) => _userRepository.AddAsync(user);
-        public Task UpdateAsync(User user) => _userRepository.UpdateAsync(user);
-        public Task DeleteAsync(int id) => _userRepository.DeleteAsync(id);
-        public Task<User> GetByUsernameAsync(string username) => _userRepository.GetByUsernameAsync(username);
-        public Task<bool> ExistsAsync(string username) => _userRepository.ExistsAsync(username);
+        public Task<IEnumerable<User>> GetAllAsync() =>
+            _userRepository.GetAllAsync();
+
+        public Task<User> GetByIdAsync(int id) =>
+            _userRepository.GetByIdAsync(id);
+
+        public Task AddAsync(User user) =>
+            _userRepository.AddAsync(user);
+
+        public Task UpdateAsync(User user) =>
+            _userRepository.UpdateAsync(user);
+
+        public Task DeleteAsync(int id) =>
+            _userRepository.DeleteAsync(id);
+
+        public Task<User> GetByUsernameAsync(string username) =>
+            _userRepository.GetByUsernameAsync(username);
+
+        public Task<bool> ExistsAsync(string username) =>
+            _userRepository.ExistsAsync(username);
     }
 }

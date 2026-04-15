@@ -13,13 +13,11 @@ namespace JovenVision.Application.Services
             _attendanceRepository = attendanceRepository;
         }
 
-        public Task<IEnumerable<Attendance>> GetAllAsync() => _attendanceRepository.GetAllAsync();
-        public Task<Attendance> GetByIdAsync(int id) => _attendanceRepository.GetByIdAsync(id);
-        public Task UpdateAsync(Attendance attendance) => _attendanceRepository.UpdateAsync(attendance);
-        public Task DeleteAsync(int id) => _attendanceRepository.DeleteAsync(id);
-        public Task<IEnumerable<Attendance>> GetByEventAsync(int eventId) => _attendanceRepository.GetByEventAsync(eventId);
-        public Task<IEnumerable<Attendance>> GetByMemberAsync(int memberId) => _attendanceRepository.GetByMemberAsync(memberId);
-        public Task<bool> ExistsAsync(int memberId, int eventId) => _attendanceRepository.ExistsAsync(memberId, eventId);
+        public Task<IEnumerable<Attendance>> GetAllAsync() =>
+            _attendanceRepository.GetAllAsync();
+
+        public Task<Attendance> GetByIdAsync(int id) =>
+            _attendanceRepository.GetByIdAsync(id);
 
         public async Task RegisterAsync(Attendance attendance)
         {
@@ -29,5 +27,20 @@ namespace JovenVision.Application.Services
 
             await _attendanceRepository.AddAsync(attendance);
         }
+
+        public Task UpdateAsync(Attendance attendance) =>
+            _attendanceRepository.UpdateAsync(attendance);
+
+        public Task DeleteAsync(int id) =>
+            _attendanceRepository.DeleteAsync(id);
+
+        public Task<IEnumerable<Attendance>> GetByEventAsync(int eventId) =>
+            _attendanceRepository.GetByEventAsync(eventId);
+
+        public Task<IEnumerable<Attendance>> GetByMemberAsync(int memberId) =>
+            _attendanceRepository.GetByMemberAsync(memberId);
+
+        public Task<bool> ExistsAsync(int memberId, int eventId) =>
+            _attendanceRepository.ExistsAsync(memberId, eventId);
     }
 }
