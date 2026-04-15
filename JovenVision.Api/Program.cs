@@ -1,3 +1,4 @@
+using JovenVision.Api.Middleware;
 using JovenVision.Application.Services;
 using JovenVision.Application.Services.Interfaces;
 using JovenVision.Infrastructure.Context;
@@ -44,6 +45,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
