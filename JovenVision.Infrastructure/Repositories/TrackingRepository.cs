@@ -38,8 +38,6 @@ namespace JovenVision.Infrastructure.Repositories
 
         public async Task<IEnumerable<Tracking>> GetByMemberAsync(int memberId)
         {
-            // Usamos await y la versión Async.
-            // El hilo queda libre para otras tareas mientras la DB trabaja.
             return await _context.Tracking
                 .Where(t => t.MemberId == memberId)
                 .ToListAsync();
