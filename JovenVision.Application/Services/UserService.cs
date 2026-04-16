@@ -31,7 +31,11 @@ namespace JovenVision.Application.Services
         {
             var existing = await _userRepository.GetByIdAsync(user.Id);
             if (existing is null) throw new NotFoundException("Usuario", user.Id);
-            await _userRepository.UpdateAsync(user);
+            existing.Username = user.Username;
+            existing.PasswordHash = user.PasswordHash;
+            existing.RoleId = user.RoleId;
+            existing.MemberId = user.MemberId;
+            await _userRepository.UpdateAsync(existing);
         }
 
         public async Task DeleteAsync(int id)
