@@ -22,8 +22,12 @@ namespace JovenVision.Infrastructure.Repositories
 
         async Task IRepository<User>.DeleteAsync(int id)
         {
-            _context.Users.Remove(new User { Id = id });
-            await _context.SaveChangesAsync();
+            var entity = await _context.Users.FindAsync(id);
+            if (entity is not null)
+            {
+                _context.Users.Remove(entity);
+                await _context.SaveChangesAsync();
+            }
         }
 
         Task<bool> IUserRepository.ExistsAsync(string username)

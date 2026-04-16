@@ -22,8 +22,12 @@ namespace JovenVision.Infrastructure.Repositories
 
         public async Task DeleteAsync(int id)
         {
-            _context.Members.Remove(new Member { Id = id });
-            await _context.SaveChangesAsync();
+            var entity = await _context.Members.FindAsync(id);
+            if (entity is not null)
+            {
+                _context.Members.Remove(entity);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task<IEnumerable<Member>> GetAllAsync()
@@ -34,6 +38,7 @@ namespace JovenVision.Infrastructure.Repositories
         public async Task<IEnumerable<Member>> GetByGroupAsync(int groupId)
         {
             return await _context.Members
+                .Include(m => m.Groups)
                 .Where(m => m.Groups.Any(g => g.Id == groupId))
                 .ToListAsync();
         }

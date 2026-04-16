@@ -22,8 +22,12 @@ namespace JovenVision.Infrastructure.Repositories
 
         public async Task DeleteAsync(int id)
         {
-            _context.Tracking.Remove(new Tracking { Id = id });
-            await _context.SaveChangesAsync();
+            var entity = await _context.Tracking.FindAsync(id);
+            if (entity is not null)
+            {
+                _context.Tracking.Remove(entity);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task<IEnumerable<Tracking>> GetAllAsync()

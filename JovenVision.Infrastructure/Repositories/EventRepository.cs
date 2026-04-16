@@ -22,8 +22,12 @@ namespace JovenVision.Infrastructure.Repositories
 
         public async Task DeleteAsync(int id)
         {
-            _context.Events.Remove(new Event { Id = id });
-            await _context.SaveChangesAsync();
+            var entity = await _context.Events.FindAsync(id);
+            if (entity is not null)
+            {
+                _context.Events.Remove(entity);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task<IEnumerable<Event>> GetAllAsync()
