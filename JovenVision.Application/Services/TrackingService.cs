@@ -37,7 +37,11 @@ namespace JovenVision.Application.Services
         {
             var existing = await _trackingRepository.GetByIdAsync(tracking.Id);
             if (existing is null) throw new NotFoundException("Seguimiento", tracking.Id);
-            await _trackingRepository.UpdateAsync(tracking);
+            existing.Description = tracking.Description;
+            existing.Date = tracking.Date;
+            existing.Type = tracking.Type;
+            existing.MemberId = tracking.MemberId;
+            await _trackingRepository.UpdateAsync(existing);
         }
 
         public async Task DeleteAsync(int id)

@@ -39,7 +39,13 @@ namespace JovenVision.Application.Services
             if (existing is null) throw new NotFoundException("Evento", eventEntity.Id);
             var group = await _groupRepository.GetByIdAsync(eventEntity.GroupId);
             if (group is null) throw new NotFoundException("Grupo", eventEntity.GroupId);
-            await _eventRepository.UpdateAsync(eventEntity);
+            existing.Title = eventEntity.Title;
+            existing.Type = eventEntity.Type;
+            existing.Date = eventEntity.Date;
+            existing.Location = eventEntity.Location;
+            existing.Capacity = eventEntity.Capacity;
+            existing.GroupId = eventEntity.GroupId;
+            await _eventRepository.UpdateAsync(existing);
         }
 
         public async Task DeleteAsync(int id)
