@@ -1,7 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace JovenVision.Domain.Entities
 {
     public class User
@@ -11,8 +7,6 @@ namespace JovenVision.Domain.Entities
         public string PasswordHash { get; set; }
         public bool Active { get; set; }
         public int RoleId { get; set; }
-        public Role Role { get; set; }
         public int? MemberId { get; set; }
-        public Member Member { get; set; }
     }
 }
