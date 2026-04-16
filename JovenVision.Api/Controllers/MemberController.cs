@@ -1,4 +1,5 @@
 using JovenVision.Application.Common;
+using JovenVision.Application.DTOs.Attendance;
 using JovenVision.Application.DTOs.Member;
 using JovenVision.Application.Services.Interfaces;
 using JovenVision.Domain.Entities;
@@ -54,7 +55,12 @@ namespace JovenVision.Api.Controllers
         public async Task<IActionResult> GetHistory(int id)
         {
             var history = await _memberService.GetHistoryAsync(id);
-            return Ok(ApiResponse<IEnumerable<Attendance>>.Ok(history));
+            var result = history.Select(a => new AttendanceResponseDto
+            {
+                Id = a.Id, MemberId = a.MemberId, EventId = a.EventId,
+                Status = a.Status, RegisteredAt = a.RegisteredAt
+            });
+            return Ok(ApiResponse<IEnumerable<AttendanceResponseDto>>.Ok(result));
         }
 
         [HttpPost]
