@@ -43,7 +43,7 @@ namespace JovenVision.Infrastructure.Repositories
 
         public async Task<IEnumerable<Group>> GetAllAsync()
         {
-            return await _context.Groups.ToListAsync();
+            return await _context.Groups.Include(g => g.Members).ToListAsync();
         }
 
         public async Task<Group> GetByIdAsync(int id)

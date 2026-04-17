@@ -3,12 +3,14 @@ using JovenVision.Application.DTOs.Group;
 using JovenVision.Application.DTOs.Member;
 using JovenVision.Application.Services.Interfaces;
 using JovenVision.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JovenVision.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class GroupController : ControllerBase
     {
         private readonly IGroupService _groupService;
@@ -23,11 +25,30 @@ namespace JovenVision.Api.Controllers
             Id = g.Id, Name = g.Name, Description = g.Description, Capacity = g.Capacity
         };
 
+        private async Task<bool> IsAuthorizedForGroup(int groupId)
+        {
+            if (User.IsInRole("Admin")) return true;
+            var memberIdClaim = User.FindFirst("memberId")?.Value;
+            if (string.IsNullOrEmpty(memberIdClaim) || !int.TryParse(memberIdClaim, out int memberId))
+                return false;
+            var members = await _groupService.GetMembersAsync(groupId);
+            return members.Any(m => m.Id == memberId);
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var groups = await _groupService.GetAllAsync();
-            return Ok(ApiResponse<IEnumerable<GroupResponseDto>>.Ok(groups.Select(ToDto)));
+
+            if (User.IsInRole("Admin"))
+                return Ok(ApiResponse<IEnumerable<GroupResponseDto>>.Ok(groups.Select(ToDto)));
+
+            var memberIdClaim = User.FindFirst("memberId")?.Value;
+            if (string.IsNullOrEmpty(memberIdClaim) || !int.TryParse(memberIdClaim, out int memberId))
+                return Forbid();
+
+            var leaderGroups = groups.Where(g => g.Members.Any(m => m.Id == memberId));
+            return Ok(ApiResponse<IEnumerable<GroupResponseDto>>.Ok(leaderGroups.Select(ToDto)));
         }
 
         [HttpGet("{id}")]
@@ -35,6 +56,9 @@ namespace JovenVision.Api.Controllers
         {
             try
             {
+                if (!await IsAuthorizedForGroup(id))
+                    return Forbid();
+
                 var group = await _groupService.GetByIdAsync(id);
                 return Ok(ApiResponse<GroupResponseDto>.Ok(ToDto(group)));
             }
@@ -47,12 +71,16 @@ namespace JovenVision.Api.Controllers
         [HttpGet("{id}/members")]
         public async Task<IActionResult> GetMembers(int id)
         {
+            if (!await IsAuthorizedForGroup(id))
+                return Forbid();
+
             var members = await _groupService.GetMembersAsync(id);
             var result = members.Select(m => new MemberResponseDto { Id = m.Id, Name = m.Name, Email = m.Email, Phone = m.Phone, Status = m.Status });
             return Ok(ApiResponse<IEnumerable<MemberResponseDto>>.Ok(result));
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] GroupRequestDto dto)
         {
             if (!ModelState.IsValid)
@@ -66,6 +94,7 @@ namespace JovenVision.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] GroupRequestDto dto)
         {
             if (!ModelState.IsValid)
@@ -85,6 +114,7 @@ namespace JovenVision.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             try
@@ -99,6 +129,7 @@ namespace JovenVision.Api.Controllers
         }
 
         [HttpPost("{groupId}/members/{memberId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddMember(int groupId, int memberId)
         {
             await _groupService.AddMemberAsync(groupId, memberId);
@@ -106,6 +137,7 @@ namespace JovenVision.Api.Controllers
         }
 
         [HttpDelete("{groupId}/members/{memberId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> RemoveMember(int groupId, int memberId)
         {
             await _groupService.RemoveMemberAsync(groupId, memberId);
