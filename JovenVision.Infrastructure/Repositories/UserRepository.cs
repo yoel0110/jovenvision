@@ -47,7 +47,7 @@ namespace JovenVision.Infrastructure.Repositories
 
         async Task<User> IUserRepository.GetByUsernameAsync(string username)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            return  await (_context.Users.FirstOrDefaultAsync(u => u.Username == username));
         }
 
         async Task IRepository<User>.UpdateAsync(User entity)

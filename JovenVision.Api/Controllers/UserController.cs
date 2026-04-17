@@ -103,7 +103,6 @@ namespace JovenVision.Api.Controllers
         }
 
         private static string HashPassword(string password) =>
-            Convert.ToBase64String(System.Security.Cryptography.SHA256.HashData(
-                System.Text.Encoding.UTF8.GetBytes(password)));
+            BCrypt.Net.BCrypt.HashPassword(password);
     }
 }

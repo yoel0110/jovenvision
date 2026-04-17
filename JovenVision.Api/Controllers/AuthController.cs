@@ -36,11 +36,7 @@ namespace JovenVision.Api.Controllers
             if (!user.Active)
                 return Unauthorized(ApiResponse<LoginResponseDto>.Fail("Usuario inactivo."));
 
-            var passwordHash = Convert.ToBase64String(
-                System.Security.Cryptography.SHA256.HashData(
-                    System.Text.Encoding.UTF8.GetBytes(dto.Password)));
-
-            if (user.PasswordHash != passwordHash)
+            if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
                 return Unauthorized(ApiResponse<LoginResponseDto>.Fail("Credenciales incorrectas."));
 
             Role? role;
