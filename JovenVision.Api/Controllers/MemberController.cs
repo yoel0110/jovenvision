@@ -3,12 +3,14 @@ using JovenVision.Application.DTOs.Attendance;
 using JovenVision.Application.DTOs.Member;
 using JovenVision.Application.Services.Interfaces;
 using JovenVision.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JovenVision.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class MemberController : ControllerBase
     {
         private readonly IMemberService _memberService;
