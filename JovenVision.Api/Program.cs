@@ -14,6 +14,24 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var config = builder.Configuration.GetConnectionString(name: "DefaultConnection");
+var allowsOrigin = builder.Configuration.GetValue<string>("AllowedOrigin:Default");
+var policyCorsName = "AllowOrigin";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: policyCorsName,
+        policy =>
+        {
+            policy.WithOrigins(allowsOrigin)
+              .WithMethods("GET", "POST", "PUT", "DELETE")
+              .WithHeaders("Content-Type", "Authorization", "X-Requested-With")
+              .SetPreflightMaxAge(TimeSpan.FromMinutes(10))
+              .DisallowCredentials()
+              .AllowCredentials();
+
+        });
+});
+
 
 builder.Services.AddDbContext<JovenVisionDbContext>(options =>
     options.UseSqlServer(config));
@@ -66,6 +84,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors(policyCorsName);
 
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
