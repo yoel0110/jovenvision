@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace JovenVision.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/dashboard")]
     [Authorize(Roles = "Admin")]
     public class DashboardController : ControllerBase
     {

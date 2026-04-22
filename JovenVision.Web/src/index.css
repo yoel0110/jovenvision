@@ -231,3 +231,96 @@ body {
 .page a:hover {
   text-decoration: underline;
 }
+
+/* Dashboard Styles */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.transform-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transform-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.metric-card-enter {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.metric-value {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.025em;
+}
+
+.trend-up {
+  color: #10b981;
+  background-color: #f0fdf4;
+}
+
+.trend-down {
+  color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.trend-stable {
+  color: #6b7280;
+  background-color: #f9fafb;
+}
+
+.metric-icon-blue { color: #2563eb; }
+.metric-icon-green { color: #10b981; }
+.metric-icon-purple { color: #8b5cf6; }
+.metric-icon-orange { color: #f59e0b; }
+.metric-icon-indigo { color: #6366f1; }
+.metric-icon-teal { color: #14b8a6; }
+
+.bg-gradient-blue {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bg-gradient-green {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.bg-gradient-purple {
+  background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+}
+
+.bg-gradient-orange {
+  background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+}
+
+.bg-gradient-indigo {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+}
+
+.bg-gradient-teal {
+  background: linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%);
+}
