@@ -65,5 +65,11 @@ namespace JovenVision.Infrastructure.Repositories
             _context.Attendances.Update(entity);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<int> GetAttendeesCountAsync()
+        {
+            var totalAttendees = await _context.Attendances.Where(a => a.Status == "Present").CountAsync();
+            return totalAttendees;
+        }
     }
 }
