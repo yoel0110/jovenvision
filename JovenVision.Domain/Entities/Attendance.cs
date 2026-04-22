@@ -7,5 +7,7 @@ namespace JovenVision.Domain.Entities
         public DateTime RegisteredAt { get; set; } = DateTime.Now;
         public int MemberId { get; set; }
         public int EventId { get; set; }
+
+        
     }
 }
