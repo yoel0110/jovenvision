@@ -47,7 +47,7 @@ namespace JovenVision.Infrastructure.Repositories
             return await _context.Events.FindAsync(id);
         }
 
-        public async Task<IEnumerable<Event>> GetUpcomingAsync()
+    public async Task<IEnumerable<Event>> GetUpcomingAsync()
         {
             return await _context.Events
                 .Where(e => e.Date > DateTime.Now)

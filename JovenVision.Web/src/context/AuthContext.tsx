@@ -6,7 +6,6 @@ import {
   type ReactNode,
 } from 'react';
 
-import { jwtDecode } from 'jwt-decode';
 import type { AuthUser } from '../types';
 import { getToken, setToken, removeToken } from '../utils/token';
 import { authService } from '../services';
@@ -19,13 +18,6 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
-
-interface JwtPayload {
-  sub: string;
-  role: string;
-  exp: number;
-  [key: string]: unknown;
-}
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -40,34 +32,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      try {
-        const decoded = jwtDecode<JwtPayload>(token);
-
-        if (!decoded?.exp || !decoded?.sub || !decoded?.role) {
-          removeToken();
-          setLoading(false);
-          return;
-        }
-
-        const expiresAt = new Date(decoded.exp * 1000);
-
-        if (expiresAt <= new Date()) {
-          removeToken();
-          setLoading(false);
-          return;
-        }
-
-        setUser({
-          username: decoded.sub,
-          role: decoded.role,
-          token,
-          expiresAt,
-        });
-      } catch {
-        removeToken();
-      } finally {
-        setLoading(false);
-      }
+      // Simple token existence check - let backend handle validation
+      setUser({
+        username: 'user', // Will be updated after first API call
+        role: 'user',
+        token,
+        expiresAt: new Date(), // Will be updated after login
+      });
+      setLoading(false);
     };
 
     loadUserFromToken();
