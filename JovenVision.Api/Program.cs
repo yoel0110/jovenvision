@@ -26,7 +26,6 @@ builder.Services.AddCors(options =>
               .WithMethods("GET", "POST", "PUT", "DELETE")
               .WithHeaders("Content-Type", "Authorization", "X-Requested-With")
               .SetPreflightMaxAge(TimeSpan.FromMinutes(10))
-              .DisallowCredentials()
               .AllowCredentials();
 
         });
