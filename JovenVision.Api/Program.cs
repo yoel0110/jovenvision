@@ -1,15 +1,36 @@
+using System.Text;
 using JovenVision.Api.Middleware;
+using JovenVision.Api.Services;
 using JovenVision.Application.Services;
 using JovenVision.Application.Services.Interfaces;
 using JovenVision.Infrastructure.Context;
 using JovenVision.Infrastructure.Interfaces;
 using JovenVision.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var config = builder.Configuration.GetConnectionString(name: "DefaultConnection");
+var allowsOrigin = builder.Configuration.GetValue<string>("AllowedOrigin:Default");
+var policyCorsName = "AllowOrigin";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: policyCorsName,
+        policy =>
+        {
+            policy.WithOrigins(allowsOrigin)
+              .WithMethods("GET", "POST", "PUT", "DELETE")
+              .WithHeaders("Content-Type", "Authorization", "X-Requested-With")
+              .SetPreflightMaxAge(TimeSpan.FromMinutes(10))
+              .AllowCredentials();
+
+        });
+});
+
 
 builder.Services.AddDbContext<JovenVisionDbContext>(options =>
     options.UseSqlServer(config));
@@ -30,6 +51,25 @@ builder.Services.AddScoped<IAttendanceService, AttendanceService>();
 builder.Services.AddScoped<ITrackingService, TrackingService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+
+builder.Services.AddScoped<IJwtService, JwtService>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        };
+    });
 
 builder.Services.AddControllers();
 builder.Services.Configure<Microsoft.AspNetCore.Mvc.ApiBehaviorOptions>(options =>
@@ -45,9 +85,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors(policyCorsName);
+
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -31,7 +31,11 @@ namespace JovenVision.Application.Services
         {
             var existing = await _memberRepository.GetByIdAsync(member.Id);
             if (existing is null) throw new NotFoundException("Miembro", member.Id);
-            await _memberRepository.UpdateAsync(member);
+            existing.Name = member.Name;
+            existing.Email = member.Email;
+            existing.Phone = member.Phone;
+            existing.Status = member.Status;
+            await _memberRepository.UpdateAsync(existing);
         }
 
         public async Task DeleteAsync(int id)

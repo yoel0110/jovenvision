@@ -14,6 +14,18 @@ namespace JovenVision.Infrastructure.Repositories
             _context = context;
         }
 
+    public async Task<int> GetActiveUsersCount()
+    {
+        var activeUsers = await _context.Users.Where(u => u.Active == true).CountAsync();
+        return activeUsers;
+    }
+
+    public async Task<int> GetAllUsersCount()
+        {
+            var count = await _context.Users.CountAsync();
+            return count;
+        }
+
         async Task IRepository<User>.AddAsync(User entity)
         {
             _context.Users.Add(entity);
@@ -22,8 +34,12 @@ namespace JovenVision.Infrastructure.Repositories
 
         async Task IRepository<User>.DeleteAsync(int id)
         {
-            _context.Users.Remove(new User { Id = id });
-            await _context.SaveChangesAsync();
+            var entity = await _context.Users.FindAsync(id);
+            if (entity is not null)
+            {
+                _context.Users.Remove(entity);
+                await _context.SaveChangesAsync();
+            }
         }
 
         Task<bool> IUserRepository.ExistsAsync(string username)
@@ -43,7 +59,7 @@ namespace JovenVision.Infrastructure.Repositories
 
         async Task<User> IUserRepository.GetByUsernameAsync(string username)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            return await (_context.Users.FirstOrDefaultAsync(u => u.Username == username));
         }
 
         async Task IRepository<User>.UpdateAsync(User entity)

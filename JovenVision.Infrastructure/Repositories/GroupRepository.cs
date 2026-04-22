@@ -33,13 +33,17 @@ namespace JovenVision.Infrastructure.Repositories
 
         public async Task DeleteAsync(int id)
         {
-            _context.Groups.Remove(new Group { Id = id });
-            await _context.SaveChangesAsync();
+            var entity = await _context.Groups.FindAsync(id);
+            if (entity is not null)
+            {
+                _context.Groups.Remove(entity);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task<IEnumerable<Group>> GetAllAsync()
         {
-            return await _context.Groups.ToListAsync();
+            return await _context.Groups.Include(g => g.Members).ToListAsync();
         }
 
         public async Task<Group> GetByIdAsync(int id)

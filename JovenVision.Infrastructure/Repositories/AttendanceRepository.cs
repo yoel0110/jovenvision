@@ -22,8 +22,12 @@ namespace JovenVision.Infrastructure.Repositories
 
         public async Task DeleteAsync(int id)
         {
-            _context.Attendances.Remove(new Attendance { Id = id });
-            await _context.SaveChangesAsync();
+            var entity = await _context.Attendances.FindAsync(id);
+            if (entity is not null)
+            {
+                _context.Attendances.Remove(entity);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task<IEnumerable<Attendance>> GetAllAsync()
@@ -60,6 +64,12 @@ namespace JovenVision.Infrastructure.Repositories
         {
             _context.Attendances.Update(entity);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> GetAttendeesCountAsync()
+        {
+            var totalAttendees = await _context.Attendances.Where(a => a.Status == "Present").CountAsync();
+            return totalAttendees;
         }
     }
 }

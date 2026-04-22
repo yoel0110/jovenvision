@@ -1,7 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace JovenVision.Domain.Entities
 {
     public class Event : EntityBase
@@ -12,7 +8,5 @@ namespace JovenVision.Domain.Entities
         public string Location { get; set; }
         public int Capacity { get; set; }
         public int GroupId { get; set; }
-        public Group Group { get; set; }
-        public ICollection<Attendance> Attendances { get; set; }
     }
 }

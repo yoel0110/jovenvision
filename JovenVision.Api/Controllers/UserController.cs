@@ -2,12 +2,14 @@ using JovenVision.Application.Common;
 using JovenVision.Application.DTOs.User;
 using JovenVision.Application.Services.Interfaces;
 using JovenVision.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JovenVision.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = "Admin")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -101,7 +103,6 @@ namespace JovenVision.Api.Controllers
         }
 
         private static string HashPassword(string password) =>
-            Convert.ToBase64String(System.Security.Cryptography.SHA256.HashData(
-                System.Text.Encoding.UTF8.GetBytes(password)));
+            BCrypt.Net.BCrypt.HashPassword(password);
     }
 }

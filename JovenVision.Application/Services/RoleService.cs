@@ -31,7 +31,8 @@ namespace JovenVision.Application.Services
         {
             var existing = await _roleRepository.GetByIdAsync(role.Id);
             if (existing is null) throw new NotFoundException("Rol", role.Id);
-            await _roleRepository.UpdateAsync(role);
+            existing.Name = role.Name;
+            await _roleRepository.UpdateAsync(existing);
         }
 
         public async Task DeleteAsync(int id)

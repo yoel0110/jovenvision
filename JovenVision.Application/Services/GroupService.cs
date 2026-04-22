@@ -31,7 +31,10 @@ namespace JovenVision.Application.Services
         {
             var existing = await _groupRepository.GetByIdAsync(group.Id);
             if (existing is null) throw new NotFoundException("Grupo", group.Id);
-            await _groupRepository.UpdateAsync(group);
+            existing.Name = group.Name;
+            existing.Description = group.Description;
+            existing.Capacity = group.Capacity;
+            await _groupRepository.UpdateAsync(existing);
         }
 
         public async Task DeleteAsync(int id)

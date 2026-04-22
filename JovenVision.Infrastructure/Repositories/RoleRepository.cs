@@ -22,8 +22,12 @@ namespace JovenVision.Infrastructure.Repositories
 
         public async Task DeleteAsync(int id)
         {
-            _context.Roles.Remove(new Role { Id = id });
-            await _context.SaveChangesAsync();
+            var entity = await _context.Roles.FindAsync(id);
+            if (entity is not null)
+            {
+                _context.Roles.Remove(entity);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task<IEnumerable<Role>> GetAllAsync()

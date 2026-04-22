@@ -2,12 +2,14 @@ using JovenVision.Application.Common;
 using JovenVision.Application.DTOs.Tracking;
 using JovenVision.Application.Services.Interfaces;
 using JovenVision.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JovenVision.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class TrackingController : ControllerBase
     {
         private readonly ITrackingService _trackingService;
