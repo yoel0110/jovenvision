@@ -5,4 +5,4 @@ export const Dashboard = () => {
       <p>Bienvenido al panel de JovenVision.</p>
     </div>
   );
-};
+  };

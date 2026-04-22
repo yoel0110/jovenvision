@@ -9,5 +9,8 @@ namespace JovenVision.Infrastructure.Interfaces
     {
         Task<User> GetByUsernameAsync(string username);
         Task<bool> ExistsAsync(string username);
+        Task<int> GetAllUsersCount();
+        Task<int> GetActiveUsersCount();
+
     }
 }
