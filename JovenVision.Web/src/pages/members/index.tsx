@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { useMembers } from '../../hooks/useMembers';
 import { MemberTable } from '../../components/members/MemberTable';
 import { MemberFilters } from '../../components/members/MemberFilters';
+import { ConfirmModal } from '../../components/common/ConfirmModal';
 import '../../styles/dashboard.css';
 
 export const MembersIndex = () => {
@@ -15,7 +16,8 @@ export const MembersIndex = () => {
     totalCount, 
     handleFilterChange, 
     handlePageChange,
-    remove 
+    remove,
+    loadingAction
   } = useMembers();
 
   const [memberToDelete, setMemberToDelete] = useState<number | null>(null);
@@ -78,34 +80,14 @@ export const MembersIndex = () => {
         onDelete={(id) => setMemberToDelete(id)}
       />
 
-      {/* Delete Confirmation Modal */}
-      {memberToDelete !== null && (
-        <div className="modal-overlay animate-fadeIn">
-          <div className="modal-content animate-scaleUp">
-            <div className="modal-icon-container delete">
-              <span className="material-symbols-outlined">delete_forever</span>
-            </div>
-            <h3 className="modal-title">¿Eliminar miembro?</h3>
-            <p className="modal-description">
-              Esta acción desactivará al miembro de la plataforma. Podrás reactivarlo más tarde si es necesario.
-            </p>
-            <div className="modal-actions">
-              <button
-                onClick={() => setMemberToDelete(null)}
-                className="btn-secondary"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleDeleteConfirm}
-                className="btn-danger"
-              >
-                Confirmar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmModal
+        isOpen={memberToDelete !== null}
+        title="¿Eliminar miembro?"
+        description="Esta acción eliminará al miembro del sistema de forma lógica. Podrás filtrar por inactivos para recuperarlo si es necesario."
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setMemberToDelete(null)}
+        loading={loadingAction}
+      />
     </div>
   );
 };

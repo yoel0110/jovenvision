@@ -123,6 +123,7 @@ export const MemberTable = ({
                       onClick={() => onEdit(member.id)}
                       className="btn-icon"
                       title="Editar"
+                      disabled={loading}
                     >
                       <span className="material-symbols-outlined">edit_square</span>
                     </button>
@@ -130,6 +131,7 @@ export const MemberTable = ({
                       onClick={() => onDelete(member.id)}
                       className="btn-icon delete"
                       title="Eliminar"
+                      disabled={loading}
                     >
                       <span className="material-symbols-outlined">delete</span>
                     </button>
