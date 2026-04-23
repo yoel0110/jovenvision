@@ -7,6 +7,9 @@ namespace JovenVision.Domain.Entities
         public DateTime Date { get; set; }
         public string Location { get; set; }
         public int Capacity { get; set; }
-        public int GroupId { get; set; }
+        public string Status { get; set; } = "ACTIVE"; // ACTIVE / CANCELLED
+        
+        public int? GroupId { get; set; }
+        public Group? Group { get; set; }
     }
 }

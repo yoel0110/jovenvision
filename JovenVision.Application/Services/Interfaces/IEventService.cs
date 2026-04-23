@@ -1,3 +1,4 @@
+using JovenVision.Application.DTOs.Event;
 using JovenVision.Domain.Entities;
 
 namespace JovenVision.Application.Services.Interfaces
@@ -11,5 +12,6 @@ namespace JovenVision.Application.Services.Interfaces
         Task DeleteAsync(int id);
         Task<IEnumerable<Event>> GetByGroupAsync(int groupId);
         Task<IEnumerable<Event>> GetUpcomingAsync();
+        Task<EventPagedResponseDto> GetPagedAsync(int page, int pageSize, string? title = null, string? type = null, string? status = null, DateTime? startDate = null, DateTime? endDate = null);
     }
 }

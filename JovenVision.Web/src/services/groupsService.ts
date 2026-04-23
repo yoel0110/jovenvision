@@ -4,7 +4,20 @@ import type { Group, GroupPayload, GroupFilters, GroupListResponse } from '../ty
 export const groupsService = {
   getGroups: async (params?: GroupFilters): Promise<GroupListResponse> => {
     const response = await api.get('/api/groups', { params });
-    return response.data.data;
+    const data = response.data.data;
+    
+    // The backend currently returns a raw array in the 'data' field.
+    // We synthesize the GroupListResponse structure to keep the UI components working.
+    if (Array.isArray(data)) {
+      return {
+        data: data,
+        totalCount: data.length,
+        page: params?.page || 1,
+        pageSize: params?.pageSize || data.length
+      };
+    }
+    
+    return data;
   },
 
   getGroupById: async (id: number): Promise<Group> => {
