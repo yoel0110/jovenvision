@@ -20,13 +20,12 @@ namespace JovenVision.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task AddMemberAsync(int groupId, int memberId)
+        public async Task AddMemberAsync(int groupId, int memberId, string role)
         {
-            var group = await _context.Groups.FindAsync(groupId);
-            var member = await _context.Members.FindAsync(memberId);
-            if (group != null && member != null)
+            var exists = await _context.GroupMembers.AnyAsync(gm => gm.GroupId == groupId && gm.MemberId == memberId);
+            if (!exists)
             {
-                group.Members.Add(member);
+                _context.GroupMembers.Add(new GroupMember { GroupId = groupId, MemberId = memberId, Role = role });
                 await _context.SaveChangesAsync();
             }
         }
@@ -43,7 +42,7 @@ namespace JovenVision.Infrastructure.Repositories
 
         public async Task<IEnumerable<Group>> GetAllAsync()
         {
-            return await _context.Groups.Include(g => g.Members).ToListAsync();
+            return await _context.Groups.Include(g => g.GroupMembers).ToListAsync();
         }
 
         public async Task<Group> GetByIdAsync(int id)
@@ -51,27 +50,20 @@ namespace JovenVision.Infrastructure.Repositories
             return await _context.Groups.FindAsync(id);
         }
 
-        public async Task<IEnumerable<Member>> GetMembersAsync(int groupId)
+        public async Task<IEnumerable<GroupMember>> GetMembersAsync(int groupId)
         {
-            var group = await _context.Groups
-                .Include(g => g.Members)
-                .FirstOrDefaultAsync(g => g.Id == groupId);
-
-            if (group != null)
-                return group.Members.ToList();
-
-            return new List<Member>();
+            return await _context.GroupMembers
+                .Include(gm => gm.Member)
+                .Where(gm => gm.GroupId == groupId)
+                .ToListAsync();
         }
 
         public async Task RemoveMemberAsync(int groupId, int memberId)
         {
-            var group = await _context.Groups
-                .Include(g => g.Members)
-                .FirstOrDefaultAsync(g => g.Id == groupId);
-            var member = await _context.Members.FindAsync(memberId);
-            if (group != null && member != null)
+            var gm = await _context.GroupMembers.FirstOrDefaultAsync(g => g.GroupId == groupId && g.MemberId == memberId);
+            if (gm != null)
             {
-                group.Members.Remove(member);
+                _context.GroupMembers.Remove(gm);
                 await _context.SaveChangesAsync();
             }
         }

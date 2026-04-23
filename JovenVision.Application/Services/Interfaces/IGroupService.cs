@@ -9,8 +9,8 @@ namespace JovenVision.Application.Services.Interfaces
         Task AddAsync(Group group);
         Task UpdateAsync(Group group);
         Task DeleteAsync(int id);
-        Task<IEnumerable<Member>> GetMembersAsync(int groupId);
-        Task AddMemberAsync(int groupId, int memberId);
+        Task<IEnumerable<GroupMember>> GetMembersAsync(int groupId);
+        Task AddMemberAsync(int groupId, int memberId, string role);
         Task RemoveMemberAsync(int groupId, int memberId);
     }
 }

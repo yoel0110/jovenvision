@@ -4,6 +4,7 @@ using JovenVision.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JovenVision.Infrastructure.Migrations
 {
     [DbContext(typeof(JovenVisionDbContext))]
-    partial class JovenVisionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260423033701_GroupStatus")]
+    partial class GroupStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,21 @@ namespace JovenVision.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("GroupMember", b =>
+                {
+                    b.Property<int>("GroupsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MembersId")
+                        .HasColumnType("int");
+
+                    b.HasKey("GroupsId", "MembersId");
+
+                    b.HasIndex("MembersId");
+
+                    b.ToTable("GroupMember");
+                });
 
             modelBuilder.Entity("JovenVision.Domain.Entities.Attendance", b =>
                 {
@@ -114,25 +132,6 @@ namespace JovenVision.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Groups");
-                });
-
-            modelBuilder.Entity("JovenVision.Domain.Entities.GroupMember", b =>
-                {
-                    b.Property<int>("GroupId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MemberId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("GroupId", "MemberId");
-
-                    b.HasIndex("MemberId");
-
-                    b.ToTable("GroupMembers");
                 });
 
             modelBuilder.Entity("JovenVision.Domain.Entities.Member", b =>
@@ -241,33 +240,19 @@ namespace JovenVision.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("JovenVision.Domain.Entities.GroupMember", b =>
+            modelBuilder.Entity("GroupMember", b =>
                 {
-                    b.HasOne("JovenVision.Domain.Entities.Group", "Group")
-                        .WithMany("GroupMembers")
-                        .HasForeignKey("GroupId")
+                    b.HasOne("JovenVision.Domain.Entities.Group", null)
+                        .WithMany()
+                        .HasForeignKey("GroupsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("JovenVision.Domain.Entities.Member", "Member")
-                        .WithMany("GroupMembers")
-                        .HasForeignKey("MemberId")
+                    b.HasOne("JovenVision.Domain.Entities.Member", null)
+                        .WithMany()
+                        .HasForeignKey("MembersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Group");
-
-                    b.Navigation("Member");
-                });
-
-            modelBuilder.Entity("JovenVision.Domain.Entities.Group", b =>
-                {
-                    b.Navigation("GroupMembers");
-                });
-
-            modelBuilder.Entity("JovenVision.Domain.Entities.Member", b =>
-                {
-                    b.Navigation("GroupMembers");
                 });
 #pragma warning restore 612, 618
         }

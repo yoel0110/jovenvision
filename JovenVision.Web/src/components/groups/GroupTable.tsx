@@ -1,59 +1,58 @@
 import React from 'react';
-import type { Member } from '../../types/member';
+import type { Group } from '../../types/group';
 
-interface MemberTableProps {
-  members: Member[];
+interface GroupTableProps {
+  groups: Group[];
   loading: boolean;
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
+  onViewMembers: (id: number) => void;
   currentPage: number;
   totalCount: number;
   pageSize: number;
   onPageChange: (page: number) => void;
 }
 
-export const MemberTable = ({
-  members,
+export const GroupTable = ({
+  groups = [],
   loading,
   onEdit,
   onDelete,
+  onViewMembers,
   currentPage,
   totalCount,
   pageSize,
   onPageChange
-}: MemberTableProps) => {
+}: GroupTableProps) => {
   const totalPages = Math.ceil(totalCount / pageSize);
 
-
-  const getStatusLabel = (status: string) => {
+  const getStatusLabel = (status?: string) => {
     switch (status) {
-      case 'Active': return 'Activo';
-      case 'Inactive': return 'Inactivo';
-      case 'Pending': return 'Pendiente';
-      case 'Banned': return 'Baneado';
-      default: return status;
+      case 'ACTIVE': return 'Activo';
+      case 'INACTIVE': return 'Inactivo';
+      default: return status || 'Desconocido';
     }
   };
 
-  if (loading && members.length === 0) {
+  if (loading && groups.length === 0) {
     return (
       <div className="empty-state">
-        <div className="animate-spin h-10 w-10 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-        <p className="text-gray-500 font-medium">Cargando miembros...</p>
+        <div className="loading-spinner" style={{ width: '40px', height: '40px', margin: '0 auto 16px', borderTopColor: 'var(--primary)' }}></div>
+        <p style={{ color: '#64748b', fontWeight: '500' }}>Cargando grupos...</p>
       </div>
     );
   }
 
-  if (members.length === 0) {
+  if (groups.length === 0) {
     return (
       <div className="empty-state animate-fadeInUp">
         <div className="empty-icon">
-          <span className="material-symbols-outlined">person_search</span>
+          <span className="material-symbols-outlined">group_off</span>
         </div>
-        <h3>No se encontraron miembros</h3>
+        <h3>No se encontraron grupos</h3>
         <p>
           Parece que no hay registros que coincidan con tu búsqueda. 
-          Prueba ajustando los filtros o añade un nuevo integrante para comenzar.
+          Prueba ajustando los filtros o crea un nuevo grupo para comenzar.
         </p>
       </div>
     );
@@ -65,53 +64,48 @@ export const MemberTable = ({
         <table>
           <thead>
             <tr>
-              <th>Integrante</th>
-              <th>Contacto</th>
+              <th>Grupo</th>
+              <th>Descripción</th>
               <th>Estado</th>
-              <th>Registro</th>
+              <th>Creación</th>
               <th style={{ textAlign: 'right' }}>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {members.map((member) => (
-              <tr key={member.id}>
+            {groups.map((group) => (
+              <tr key={group.id}>
                 <td>
                   <div className="member-cell">
                     <div className="avatar">
-                      {member.name[0]}
+                      <span className="material-symbols-outlined" style={{color: 'white', fontSize: '18px'}}>groups</span>
                     </div>
                     <div>
-                      <div className="member-name">{member.name}</div>
-                      <div className="member-id">ID: {member.id}</div>
+                      <div className="member-name">{group.name}</div>
+                      <div className="member-id">ID: {group.id} | Capacidad: {group.capacity}</div>
                     </div>
                   </div>
                 </td>
                 <td>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', fontSize: '0.875rem' }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: '14px', marginRight: '8px', color: '#94a3b8' }}>mail</span>
-                      {member.email || '—'}
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', fontSize: '0.75rem', color: '#94a3b8' }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: '12px', marginRight: '8px' }}>phone</span>
-                      {member.phone || '—'}
-                    </div>
+                  <div style={{ fontSize: '0.875rem', color: '#64748b', maxWidth: '250px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {group.description || 'Sin descripción'}
                   </div>
                 </td>
                 <td>
-                  <span className={`badge ${member.status.toLowerCase()}`}>
-                    {getStatusLabel(member.status)}
+                  <span className={`badge ${(group.status || 'UNKNOWN').toLowerCase()}`}>
+                    {getStatusLabel(group.status)}
                   </span>
                 </td>
                 <td>
                   <div style={{ fontSize: '0.875rem', fontWeight: '500' }}>
-                    {new Date(member.createdAt).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}
+                    {group.createdAt 
+                      ? new Date(group.createdAt).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' }) 
+                      : 'No disponible'}
                   </div>
                 </td>
                 <td style={{ textAlign: 'right' }}>
                   <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '4px' }}>
                     <button
-                      onClick={() => onEdit(member.id)}
+                      onClick={() => onEdit(group.id)}
                       className="btn-icon"
                       title="Editar"
                       disabled={loading}
@@ -119,7 +113,16 @@ export const MemberTable = ({
                       <span className="material-symbols-outlined">edit_square</span>
                     </button>
                     <button
-                      onClick={() => onDelete(member.id)}
+                      onClick={() => onViewMembers(group.id)}
+                      className="btn-icon"
+                      title="Gestionar Miembros"
+                      disabled={loading}
+                      style={{ color: 'var(--primary)' }}
+                    >
+                      <span className="material-symbols-outlined">group</span>
+                    </button>
+                    <button
+                      onClick={() => onDelete(group.id)}
                       className="btn-icon delete"
                       title="Eliminar"
                       disabled={loading}
@@ -134,11 +137,10 @@ export const MemberTable = ({
         </table>
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="pagination">
           <div className="pagination-info">
-            Total: <span>{totalCount}</span> miembros
+            Total: <span>{totalCount}</span> grupos
           </div>
           <div className="pagination-controls">
             <button
