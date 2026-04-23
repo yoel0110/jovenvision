@@ -67,5 +67,29 @@ namespace JovenVision.Infrastructure.Repositories
             _context.Members.Update(entity);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<(IEnumerable<Member> Items, int TotalCount)> GetPagedAsync(int page, int pageSize, string? search = null, string? status = null)
+        {
+            var query = _context.Members.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(m => m.Name.Contains(search) || m.Email.Contains(search));
+            }
+
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                query = query.Where(m => m.Status == status);
+            }
+
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .OrderByDescending(m => m.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
     }
 }

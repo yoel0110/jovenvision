@@ -2,10 +2,10 @@ import { Outlet, Link, useLocation } from 'react-router';
 import { useAuth } from '../context/AuthContext';
 
 const navItems = [
-  { path: '/dashboard', label: 'Dashboard' },
-  { path: '/members', label: 'Miembros' },
-  { path: '/groups', label: 'Grupos' },
-  { path: '/events', label: 'Eventos' },
+  { path: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
+  { path: '/members', label: 'Miembros', icon: 'group' },
+  { path: '/groups', label: 'Grupos', icon: 'hub' },
+  { path: '/events', label: 'Eventos', icon: 'event' },
 ];
 
 export const MainLayout = () => {
@@ -15,11 +15,21 @@ export const MainLayout = () => {
   return (
     <div className="main-layout">
       <header className="main-header">
-        <div className="header-brand">JovenVision</div>
+        <div className="header-brand-container">
+          <div className="header-brand">JovenVision</div>
+        </div>
+        
         <div className="header-user">
-          <span>{user?.username}</span>
-          <button onClick={logout} className="btn-logout">
-            Cerrar sesión
+          <div className="user-info">
+            <span className="username">{user?.username}</span>
+            <span className="role">Administrador</span>
+          </div>
+          <button 
+            onClick={logout} 
+            className="btn-logout"
+          >
+            <span className="material-symbols-outlined">logout</span>
+            <span>Salir</span>
           </button>
         </div>
       </header>
@@ -27,20 +37,28 @@ export const MainLayout = () => {
       <div className="main-body">
         <aside className="main-sidebar">
           <nav className="sidebar-nav">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`sidebar-link ${location.pathname === item.path ? 'active' : ''}`}
-              >
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const isActive = location.pathname.startsWith(item.path);
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`sidebar-link ${isActive ? 'active' : ''}`}
+                >
+                  <span className="material-symbols-outlined">
+                    {item.icon}
+                  </span>
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
           </nav>
         </aside>
 
         <main className="main-content">
-          <Outlet />
+          <div className="content-container">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>
