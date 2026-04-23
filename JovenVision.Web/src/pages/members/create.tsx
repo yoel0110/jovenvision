@@ -7,16 +7,20 @@ import type { MemberPayload } from '../../types/member';
 export const CreateMember = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errorState, setErrorState] = useState<{ message: string, errors: string[] } | null>(null);
 
   const handleSubmit = async (data: MemberPayload) => {
     setLoading(true);
-    setError(null);
+    setErrorState(null);
     try {
       await membersService.createMember(data);
       navigate('/members');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al crear el miembro. Por favor, intenta de nuevo.');
+      const response = err.response?.data;
+      setErrorState({
+        message: response?.message || 'Error al crear el miembro. Por favor, intenta de nuevo.',
+        errors: response?.errors || []
+      });
     } finally {
       setLoading(false);
     }
@@ -24,32 +28,40 @@ export const CreateMember = () => {
 
   return (
     <div className="dashboard-container animate-fadeInUp">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
-        <div className="bg-gradient-header px-6 py-6 border-b border-gray-100">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div className="flex-1">
+      <div className="header-card">
+        <div className="header-content">
+          <div className="header-info">
+            <div className="header-text">
               <button
                 onClick={() => navigate('/members')}
-                className="flex items-center text-xs font-bold text-blue-500 hover:text-blue-700 transition-all mb-2 uppercase tracking-widest"
+                className="btn-quick"
+                style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '4px' }}
               >
-                <span className="material-symbols-outlined text-sm mr-1">arrow_back</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>arrow_back</span>
                 Volver al listado
               </button>
-              <h1 className="text-3xl font-bold text-gradient-blue">
-                Nuevo Miembro
-              </h1>
-              <p className="text-sm text-gray-500 mt-1">Registra la información de un nuevo integrante del ministerio</p>
+              <h1>Nuevo Miembro</h1>
+              <p>Registra la información de un nuevo integrante del ministerio</p>
             </div>
           </div>
         </div>
 
-        <div className="p-8 max-w-3xl mx-auto">
-          {error && (
-            <div className="mb-6 p-4 bg-red-50/50 border border-red-100 rounded-xl flex items-center space-x-3 text-red-600 animate-fadeInUp shadow-sm">
-              <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="material-symbols-outlined text-lg">error</span>
+        <div className="form-container">
+          {errorState && (
+            <div className="error-list-container">
+              <div className="error-list-icon">
+                <span className="material-symbols-outlined">error</span>
               </div>
-              <p className="text-sm font-semibold">{error}</p>
+              <div className="error-list-content">
+                <h4>{errorState.message}</h4>
+                {errorState.errors.length > 0 && (
+                  <ul>
+                    {errorState.errors.map((err, index) => (
+                      <li key={index}>{err}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
           )}
 

@@ -10,22 +10,24 @@ export const EditMember = () => {
   const [initialData, setInitialData] = useState<MemberPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errorState, setErrorState] = useState<{ message: string, errors: string[] } | null>(null);
 
   useEffect(() => {
     const fetchMember = async () => {
       if (!id) return;
       try {
-        const member = await membersService.getMemberById(id);
+        const member = await membersService.getMemberById(Number(id));
         setInitialData({
-          firstName: member.firstName,
-          lastName: member.lastName,
+          name: member.name,
           email: member.email || '',
           phone: member.phone || '',
           status: member.status
         });
-      } catch (err) {
-        setError('No se pudo cargar la información del miembro');
+      } catch (err: any) {
+        setErrorState({
+          message: 'No se pudo cargar la información del miembro',
+          errors: []
+        });
       } finally {
         setLoading(false);
       }
@@ -37,12 +39,16 @@ export const EditMember = () => {
   const handleSubmit = async (data: MemberPayload) => {
     if (!id) return;
     setSaving(true);
-    setError(null);
+    setErrorState(null);
     try {
-      await membersService.updateMember(id, data);
+      await membersService.updateMember(Number(id), data);
       navigate('/members');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al actualizar el miembro. Por favor, intenta de nuevo.');
+      const response = err.response?.data;
+      setErrorState({
+        message: response?.message || 'Error al actualizar el miembro. Por favor, intenta de nuevo.',
+        errors: response?.errors || []
+      });
     } finally {
       setSaving(false);
     }
@@ -50,41 +56,51 @@ export const EditMember = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <div className="animate-spin h-10 w-10 border-4 border-blue-500 border-t-transparent rounded-full mb-4"></div>
-        <p className="text-gray-500 font-medium">Cargando datos del miembro...</p>
+      <div className="dashboard-container">
+        <div className="flex-center" style={{ minHeight: '400px', flexDirection: 'column', gap: '16px' }}>
+          <div className="loading-spinner" style={{ width: '40px', height: '40px', borderTopColor: 'var(--primary)' }}></div>
+          <p style={{ color: '#64748b', fontWeight: '600' }}>Cargando datos del miembro...</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="dashboard-container animate-fadeInUp">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
-        <div className="bg-gradient-header px-6 py-6 border-b border-gray-100">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div className="flex-1">
+      <div className="header-card">
+        <div className="header-content">
+          <div className="header-info">
+            <div className="header-text">
               <button
                 onClick={() => navigate('/members')}
-                className="flex items-center text-xs font-bold text-blue-500 hover:text-blue-700 transition-all mb-2 uppercase tracking-widest"
+                className="btn-quick"
+                style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '4px' }}
               >
-                <span className="material-symbols-outlined text-sm mr-1">arrow_back</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>arrow_back</span>
                 Volver al listado
               </button>
-              <h1 className="text-3xl font-bold text-gradient-blue">
-                Editar Miembro
-              </h1>
-              <p className="text-sm text-gray-500 mt-1">Actualiza la información del integrante del ministerio</p>
+              <h1>Editar Miembro</h1>
+              <p>Actualiza la información del integrante del ministerio</p>
             </div>
           </div>
         </div>
 
-        <div className="p-8 max-w-3xl mx-auto">
-          {error && (
-            <div className="mb-6 p-4 bg-red-50/50 border border-red-100 rounded-xl flex items-center space-x-3 text-red-600 animate-fadeInUp shadow-sm">
-              <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="material-symbols-outlined text-lg">error</span>
+        <div className="form-container">
+          {errorState && (
+            <div className="error-list-container">
+              <div className="error-list-icon">
+                <span className="material-symbols-outlined">error</span>
               </div>
-              <p className="text-sm font-semibold">{error}</p>
+              <div className="error-list-content">
+                <h4>{errorState.message}</h4>
+                {errorState.errors.length > 0 && (
+                  <ul>
+                    {errorState.errors.map((err, index) => (
+                      <li key={index}>{err}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
           )}
 
