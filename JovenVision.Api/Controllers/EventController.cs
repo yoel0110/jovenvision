@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace JovenVision.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/events")]
     [Authorize]
     public class EventController : ControllerBase
     {
@@ -21,15 +21,29 @@ namespace JovenVision.Api.Controllers
 
         private static EventResponseDto ToDto(Event e) => new()
         {
-            Id = e.Id, Title = e.Title, Type = e.Type, Date = e.Date,
-            Location = e.Location, Capacity = e.Capacity, GroupId = e.GroupId
+            Id = e.Id,
+            Title = e.Title,
+            Type = e.Type,
+            Date = e.Date,
+            Location = e.Location,
+            Capacity = e.Capacity,
+            Status = e.Status,
+            GroupId = e.GroupId,
+            Group = e.Group != null ? new GroupSummaryDto { Id = e.Group.Id, Name = e.Group.Name } : null
         };
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? title = null,
+            [FromQuery] string? type = null,
+            [FromQuery] string? status = null,
+            [FromQuery] DateTime? startDate = null,
+            [FromQuery] DateTime? endDate = null)
         {
-            var events = await _eventService.GetAllAsync();
-            return Ok(ApiResponse<IEnumerable<EventResponseDto>>.Ok(events.Select(ToDto)));
+            var result = await _eventService.GetPagedAsync(page, pageSize, title, type, status, startDate, endDate);
+            return Ok(ApiResponse<EventPagedResponseDto>.Ok(result));
         }
 
         [HttpGet("{id}")]
@@ -69,7 +83,7 @@ namespace JovenVision.Api.Controllers
 
             try
             {
-                var ev = new Event { Title = dto.Title, Type = dto.Type, Date = dto.Date, Location = dto.Location ?? string.Empty, Capacity = dto.Capacity, GroupId = dto.GroupId };
+                var ev = new Event { Title = dto.Title, Type = dto.Type, Date = dto.Date, Location = dto.Location ?? string.Empty, Capacity = dto.Capacity, GroupId = dto.GroupId, Status = dto.Status };
                 await _eventService.AddAsync(ev);
                 return CreatedAtAction(nameof(GetById), new { id = ev.Id },
                     ApiResponse<EventResponseDto>.Ok(ToDto(ev), "Evento creado correctamente."));
@@ -89,7 +103,7 @@ namespace JovenVision.Api.Controllers
 
             try
             {
-                var ev = new Event { Id = id, Title = dto.Title, Type = dto.Type, Date = dto.Date, Location = dto.Location ?? string.Empty, Capacity = dto.Capacity, GroupId = dto.GroupId };
+                var ev = new Event { Id = id, Title = dto.Title, Type = dto.Type, Date = dto.Date, Location = dto.Location ?? string.Empty, Capacity = dto.Capacity, GroupId = dto.GroupId, Status = dto.Status };
                 await _eventService.UpdateAsync(ev);
                 return Ok(ApiResponse<string>.Ok(null!, "Evento actualizado correctamente."));
             }

@@ -20,8 +20,7 @@ namespace JovenVision.Application.DTOs.Event
         [Range(1, 1000, ErrorMessage = "La capacidad debe estar entre 1 y 1000.")]
         public int Capacity { get; set; }
 
-        [Required(ErrorMessage = "El grupo es obligatorio.")]
-        [Range(1, int.MaxValue, ErrorMessage = "El GroupId es obligatorio.")]
-        public int GroupId { get; set; } = 0;
+        public int? GroupId { get; set; }
+        public string Status { get; set; } = "ACTIVE";
     }
 }

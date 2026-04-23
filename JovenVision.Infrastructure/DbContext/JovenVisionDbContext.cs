@@ -34,6 +34,12 @@ namespace JovenVision.Infrastructure.Context
                 .HasOne(gm => gm.Member)
                 .WithMany(m => m.GroupMembers)
                 .HasForeignKey(gm => gm.MemberId);
+
+            modelBuilder.Entity<Event>()
+                .HasOne(e => e.Group)
+                .WithMany(g => g.Events)
+                .HasForeignKey(e => e.GroupId)
+                .IsRequired(false);
         }
     }
 }
