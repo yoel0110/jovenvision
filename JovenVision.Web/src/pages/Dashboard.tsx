@@ -16,23 +16,19 @@ export const Dashboard = () => {
   if (error) {
     return (
       <div className="dashboard-container">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 animate-fadeInUp">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <span className="material-icons text-red-600">error</span>
-            </div>
-            <div className="ml-4">
-              <h3 className="text-lg font-semibold text-red-900">Error al cargar el tablero</h3>
-              <div className="mt-1 text-sm text-red-700">
-                <p>No se pudieron recuperar los datos. Por favor, intenta de nuevo más tarde.</p>
-              </div>
-              <button 
-                onClick={refreshData}
-                className="mt-4 px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700 transition-colors"
-              >
-                Reintentar
-              </button>
-            </div>
+        <div className="error-banner animate-fadeInUp">
+          <span className="material-symbols-outlined">error</span>
+          <div>
+            <h3>Error al cargar el tablero</h3>
+            <p>{error}</p>
+            <button 
+              onClick={refreshData}
+              className="btn-premium"
+              style={{ marginTop: '16px' }}
+            >
+              <span className="material-symbols-outlined">refresh</span>
+              <span>Reintentar</span>
+            </button>
           </div>
         </div>
       </div>
@@ -49,7 +45,7 @@ export const Dashboard = () => {
         lastRefreshed={lastRefreshed}
       />
       
-      <div className="py-6">
+      <div className="metric-section">
         <MetricGrid metrics={metrics} loading={loading} />
       </div>
     </div>
