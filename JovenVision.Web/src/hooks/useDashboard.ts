@@ -270,7 +270,7 @@ export const useDashboard = (initialFilters?: Partial<DashboardFilters>) => {
       
       if (response.success && response.data) {
         const totalMembers = response.data.totalUsers;
-        const activeMembers = response.data.activeUsers;
+        // const activeMembers = response.data.activeUsers;
         const attendanceRate = response.data.participationRate;
         
         const highRiskMembers = Math.round(totalMembers * 0.08);

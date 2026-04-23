@@ -6,6 +6,7 @@ export interface Member {
   email: string | null;
   phone: string | null;
   status: MemberStatus;
+  role?: string;
   createdAt: string;
 }
 

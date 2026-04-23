@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace JovenVision.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/groups")]
     [Authorize]
     public class GroupController : ControllerBase
     {
@@ -22,7 +22,12 @@ namespace JovenVision.Api.Controllers
 
         private static GroupResponseDto ToDto(Group g) => new()
         {
-            Id = g.Id, Name = g.Name, Description = g.Description, Capacity = g.Capacity
+            Id = g.Id, 
+            Name = g.Name, 
+            Description = g.Description, 
+            Capacity = g.Capacity, 
+            Status = string.IsNullOrEmpty(g.Status) ? "ACTIVE" : g.Status, 
+            CreatedAt = g.CreatedAt == default ? DateTime.Now : g.CreatedAt
         };
 
         private async Task<bool> IsAuthorizedForGroup(int groupId)
@@ -32,7 +37,7 @@ namespace JovenVision.Api.Controllers
             if (string.IsNullOrEmpty(memberIdClaim) || !int.TryParse(memberIdClaim, out int memberId))
                 return false;
             var members = await _groupService.GetMembersAsync(groupId);
-            return members.Any(m => m.Id == memberId);
+            return members.Any(gm => gm.MemberId == memberId);
         }
 
         [HttpGet]
@@ -47,7 +52,7 @@ namespace JovenVision.Api.Controllers
             if (string.IsNullOrEmpty(memberIdClaim) || !int.TryParse(memberIdClaim, out int memberId))
                 return Forbid();
 
-            var leaderGroups = groups.Where(g => g.Members.Any(m => m.Id == memberId));
+            var leaderGroups = groups.Where(g => g.GroupMembers.Any(gm => gm.MemberId == memberId));
             return Ok(ApiResponse<IEnumerable<GroupResponseDto>>.Ok(leaderGroups.Select(ToDto)));
         }
 
@@ -74,8 +79,8 @@ namespace JovenVision.Api.Controllers
             if (!await IsAuthorizedForGroup(id))
                 return Forbid();
 
-            var members = await _groupService.GetMembersAsync(id);
-            var result = members.Select(m => new MemberResponseDto { Id = m.Id, Name = m.Name, Email = m.Email, Phone = m.Phone, Status = m.Status });
+            var groupMembers = await _groupService.GetMembersAsync(id);
+            var result = groupMembers.Select(gm => new MemberResponseDto { Id = gm.Member.Id, Name = gm.Member.Name, Email = gm.Member.Email, Phone = gm.Member.Phone, Status = gm.Member.Status, Role = gm.Role });
             return Ok(ApiResponse<IEnumerable<MemberResponseDto>>.Ok(result));
         }
 
@@ -130,9 +135,9 @@ namespace JovenVision.Api.Controllers
 
         [HttpPost("{groupId}/members/{memberId}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> AddMember(int groupId, int memberId)
+        public async Task<IActionResult> AddMember(int groupId, int memberId, [FromQuery] string role = "Seguidor")
         {
-            await _groupService.AddMemberAsync(groupId, memberId);
+            await _groupService.AddMemberAsync(groupId, memberId, role);
             return Ok(ApiResponse<string>.Ok(null!, "Miembro agregado al grupo correctamente."));
         }
 

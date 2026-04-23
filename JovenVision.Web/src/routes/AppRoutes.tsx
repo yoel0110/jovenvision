@@ -2,7 +2,7 @@ import { Routes, Route, Navigate } from 'react-router';
 import { ProtectedRoute } from './ProtectedRoute';
 import { MainLayout } from '../layouts/MainLayout';
 import { PublicLayout } from '../layouts/PublicLayout';
-import { Login, Dashboard, Members, CreateMember, EditMember, Groups, Events, Unauthorized, NotFound } from '../pages';
+import { Login, Dashboard, Members, CreateMember, EditMember, Groups, CreateGroup, EditGroup, GroupMembers, Events, Unauthorized, NotFound } from '../pages';
 
 export const AppRoutes = () => {
   return (
@@ -19,6 +19,9 @@ export const AppRoutes = () => {
           <Route path="/members/create" element={<CreateMember />} />
           <Route path="/members/edit/:id" element={<EditMember />} />
           <Route path="/groups" element={<Groups />} />
+          <Route path="/groups/create" element={<CreateGroup />} />
+          <Route path="/groups/edit/:id" element={<EditGroup />} />
+          <Route path="/groups/:id/members" element={<GroupMembers />} />
           <Route path="/events" element={<Events />} />
         </Route>
       </Route>

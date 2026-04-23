@@ -44,11 +44,11 @@ namespace JovenVision.Application.Services
             await _groupRepository.DeleteAsync(id);
         }
 
-        public Task<IEnumerable<Member>> GetMembersAsync(int groupId) =>
+        public Task<IEnumerable<GroupMember>> GetMembersAsync(int groupId) =>
             _groupRepository.GetMembersAsync(groupId);
 
-        public Task AddMemberAsync(int groupId, int memberId) =>
-            _groupRepository.AddMemberAsync(groupId, memberId);
+        public Task AddMemberAsync(int groupId, int memberId, string role) =>
+            _groupRepository.AddMemberAsync(groupId, memberId, role);
 
         public Task RemoveMemberAsync(int groupId, int memberId) =>
             _groupRepository.RemoveMemberAsync(groupId, memberId);

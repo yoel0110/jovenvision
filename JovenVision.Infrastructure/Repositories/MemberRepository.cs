@@ -38,8 +38,8 @@ namespace JovenVision.Infrastructure.Repositories
         public async Task<IEnumerable<Member>> GetByGroupAsync(int groupId)
         {
             return await _context.Members
-                .Include(m => m.Groups)
-                .Where(m => m.Groups.Any(g => g.Id == groupId))
+                .Include(m => m.GroupMembers)
+                .Where(m => m.GroupMembers.Any(gm => gm.GroupId == groupId))
                 .ToListAsync();
         }
 

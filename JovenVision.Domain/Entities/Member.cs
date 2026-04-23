@@ -6,6 +6,6 @@ namespace JovenVision.Domain.Entities
         public string Email { get; set; }
         public string Phone { get; set; }
         public string Status { get; set; } // Active / Inactive / New
-        public ICollection<Group> Groups { get; set; }
+        public ICollection<GroupMember> GroupMembers { get; set; } = new List<GroupMember>();
     }
 }
