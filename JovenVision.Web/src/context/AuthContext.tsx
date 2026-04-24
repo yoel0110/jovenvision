@@ -32,13 +32,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      // Simple token existence check - let backend handle validation
-      setUser({
-        username: 'user', // Will be updated after first API call
-        role: 'user',
-        token,
-        expiresAt: new Date(), // Will be updated after login
-      });
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        // Los claims estándar de .NET para ID, Role y Name
+        const id = payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || payload.nameid || 0;
+        const role = payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || payload.role || 'user';
+        const username = payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || payload.unique_name || 'user';
+
+        setUser({
+          id: parseInt(id, 10),
+          username,
+          role,
+          token,
+          expiresAt: new Date(payload.exp * 1000), 
+        });
+      } catch (e) {
+        removeToken();
+        setUser(null);
+      }
       setLoading(false);
     };
 
@@ -55,6 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setToken(response.data.token);
 
     setUser({
+      id: response.data.id,
       username: response.data.username,
       role: response.data.role,
       token: response.data.token,

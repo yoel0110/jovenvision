@@ -12,5 +12,6 @@ export { CreateEvent } from './events/create';
 export { EditEvent } from './events/edit';
 export { AttendanceByEvent } from './attendance/event';
 export { MemberAttendanceHistory } from './attendance/member';
+export { default as MemberFollowups } from './followups/member';
 export { Unauthorized } from './Unauthorized';
 export { NotFound } from './NotFound';

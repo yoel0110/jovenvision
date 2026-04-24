@@ -19,7 +19,7 @@ export const dashboardService = {
     }
     
     const queryString = params.toString();
-    const endpoint = `/api/dashboard/engagement${queryString ? `?${queryString}` : ''}`;
+    const endpoint = `/dashboard/engagement${queryString ? `?${queryString}` : ''}`;
     
     const response = await api.get<ApiResponse<EngagementMetrics>>(endpoint);
     return response.data;
@@ -42,7 +42,7 @@ export const dashboardService = {
     }
     
     const queryString = params.toString();
-    const endpoint = `/api/dashboard/timeseries/${metricType}${queryString ? `?${queryString}` : ''}`;
+    const endpoint = `/dashboard/timeseries/${metricType}${queryString ? `?${queryString}` : ''}`;
     
     const response = await api.get<ApiResponse<TimeSeriesData[]>>(endpoint);
     return response.data;
@@ -65,14 +65,14 @@ export const dashboardService = {
     }
     
     const queryString = params.toString();
-    const endpoint = `/api/dashboard/overview${queryString ? `?${queryString}` : ''}`;
+    const endpoint = `/dashboard/overview${queryString ? `?${queryString}` : ''}`;
     
     const response = await api.get<ApiResponse<Record<string, number>>>(endpoint);
     return response.data;
   },
 
   refreshMetrics: async (): Promise<ApiResponse<{ success: boolean }>> => {
-    const response = await api.post<ApiResponse<{ success: boolean }>>('/api/dashboard/refresh');
+    const response = await api.post<ApiResponse<{ success: boolean }>>('/dashboard/refresh');
     return response.data;
   },
 };
