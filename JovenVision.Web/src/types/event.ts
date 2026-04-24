@@ -1,7 +1,7 @@
 export type EventType = 'MEETING' | 'ACTIVITY' | 'TRAINING' | 'OTHER';
 export type EventStatus = 'ACTIVE' | 'CANCELLED' | 'PENDING';
 
-export interface Event {
+export interface JovenEvent {
   id: number;
   title: string;
   type: EventType;
@@ -41,7 +41,7 @@ export interface EventFilters {
 }
 
 export interface EventListResponse {
-  data: Event[];
+  data: JovenEvent[];
   totalCount: number;
   page: number;
   pageSize: number;

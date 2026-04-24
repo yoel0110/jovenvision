@@ -32,7 +32,9 @@ namespace JovenVision.Infrastructure.Repositories
 
         public async Task<IEnumerable<Attendance>> GetAllAsync()
         {
-            return await _context.Attendances.ToListAsync();
+            return await _context.Attendances
+                .Include(a => a.Event)
+                .ToListAsync();
         }
 
         public async Task<Attendance> GetByIdAsync(int id)
@@ -43,6 +45,7 @@ namespace JovenVision.Infrastructure.Repositories
         public async Task<IEnumerable<Attendance>> GetByEventAsync(int eventId)
         {
             return await _context.Attendances
+                .Include(a => a.Event)
                 .Where(a => a.EventId == eventId)
                 .ToListAsync();
         }
@@ -50,7 +53,9 @@ namespace JovenVision.Infrastructure.Repositories
         public async Task<IEnumerable<Attendance>> GetByMemberAsync(int memberId)
         {
             return await _context.Attendances
+                .Include(a => a.Event)
                 .Where(a => a.MemberId == memberId)
+                .OrderByDescending(a => a.RegisteredAt)
                 .ToListAsync();
         }
 

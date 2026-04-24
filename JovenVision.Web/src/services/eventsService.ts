@@ -1,24 +1,24 @@
 import api from './api';
-import type { Event, EventPayload, EventFilters, EventListResponse } from '../types/event';
+import type { JovenEvent, EventPayload, EventFilters, EventListResponse } from '../types/event';
 
 export const eventsService = {
   getEvents: async (params?: EventFilters): Promise<EventListResponse> => {
     const response = await api.get('/api/events', { params });
-    // Assuming the API follows the same response pattern: { success: boolean, data: { data: Event[], totalCount: number, ... } }
+    // Assuming the API follows the same response pattern: { success: boolean, data: { data: JovenEvent[], totalCount: number, ... } }
     return response.data.data;
   },
 
-  getEventById: async (id: number): Promise<Event> => {
+  getEventById: async (id: number): Promise<JovenEvent> => {
     const response = await api.get(`/api/events/${id}`);
     return response.data.data;
   },
 
-  createEvent: async (data: EventPayload): Promise<Event> => {
+  createEvent: async (data: EventPayload): Promise<JovenEvent> => {
     const response = await api.post('/api/events', data);
     return response.data.data;
   },
 
-  updateEvent: async (id: number, data: EventPayload): Promise<Event> => {
+  updateEvent: async (id: number, data: EventPayload): Promise<JovenEvent> => {
     const response = await api.put(`/api/events/${id}`, data);
     return response.data.data;
   },

@@ -1,8 +1,8 @@
 import React from 'react';
-import type { Event } from '../../types/event';
+import type { JovenEvent } from '../../types/event';
 
 interface EventTableProps {
-  events: Event[];
+  events: JovenEvent[];
   loading: boolean;
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
