@@ -6,6 +6,8 @@ const navItems = [
   { path: '/members', label: 'Miembros', icon: 'group' },
   { path: '/groups', label: 'Grupos', icon: 'hub' },
   { path: '/events', label: 'Eventos', icon: 'event' },
+  { path: '/attendance/event', label: 'Asistencia', icon: 'how_to_reg' },
+  { path: '/attendance/member', label: 'Historial', icon: 'person_search' },
 ];
 
 export const MainLayout = () => {

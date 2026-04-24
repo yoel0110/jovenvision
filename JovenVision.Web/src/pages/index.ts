@@ -10,5 +10,7 @@ export { GroupMembers } from './groups/members';
 export { EventsIndex as Events } from './events/index';
 export { CreateEvent } from './events/create';
 export { EditEvent } from './events/edit';
+export { AttendanceByEvent } from './attendance/event';
+export { MemberAttendanceHistory } from './attendance/member';
 export { Unauthorized } from './Unauthorized';
 export { NotFound } from './NotFound';

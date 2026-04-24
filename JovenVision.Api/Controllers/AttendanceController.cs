@@ -1,5 +1,6 @@
 using JovenVision.Application.Common;
 using JovenVision.Application.DTOs.Attendance;
+using JovenVision.Application.DTOs.Event;
 using JovenVision.Application.Services.Interfaces;
 using JovenVision.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -8,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace JovenVision.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/attendance")]
     [Authorize]
     public class AttendanceController : ControllerBase
     {
@@ -21,8 +22,22 @@ namespace JovenVision.Api.Controllers
 
         private static AttendanceResponseDto ToDto(Attendance a) => new()
         {
-            Id = a.Id, MemberId = a.MemberId, EventId = a.EventId,
-            Status = a.Status, RegisteredAt = a.RegisteredAt
+            Id = a.Id, 
+            MemberId = a.MemberId, 
+            EventId = a.EventId,
+            Status = a.Status, 
+            RegisteredAt = a.RegisteredAt,
+            Event = a.Event != null ? new EventResponseDto
+            {
+                Id = a.Event.Id,
+                Title = a.Event.Title,
+                Date = a.Event.Date,
+                Type = a.Event.Type,
+                Location = a.Event.Location,
+                Capacity = a.Event.Capacity,
+                Status = a.Event.Status,
+                GroupId = a.Event.GroupId
+            } : null
         };
 
         [HttpGet]

@@ -1,9 +1,9 @@
 import { useState, useCallback, useEffect } from 'react';
 import { eventsService } from '../services/eventsService';
-import type { Event, EventPayload, EventFilters } from '../types/event';
+import type { JovenEvent, EventPayload, EventFilters } from '../types/event';
 
 export const useEvents = (initialFilters: EventFilters = { page: 1, pageSize: 10 }) => {
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<JovenEvent[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [loadingAction, setLoadingAction] = useState(false);
@@ -87,6 +87,7 @@ export const useEvents = (initialFilters: EventFilters = { page: 1, pageSize: 10
     filters,
     handleFilterChange,
     handlePageChange,
+    fetchEvents,
     refresh: () => fetchEvents(filters),
     remove,
     update,
