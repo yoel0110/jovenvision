@@ -49,6 +49,7 @@ namespace JovenVision.Api.Controllers
 
             return Ok(ApiResponse<LoginResponseDto>.Ok(new LoginResponseDto
             {
+                Id = user.Id,
                 Token = token,
                 Username = user.Username,
                 Role = roleName,

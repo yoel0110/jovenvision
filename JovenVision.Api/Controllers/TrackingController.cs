@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace JovenVision.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/tracking")]
     [Authorize]
     public class TrackingController : ControllerBase
     {
@@ -21,7 +21,14 @@ namespace JovenVision.Api.Controllers
 
         private static TrackingResponseDto ToDto(Tracking t) => new()
         {
-            Id = t.Id, Description = t.Description, Date = t.Date, Type = t.Type, MemberId = t.MemberId
+            Id = t.Id, 
+            Description = t.Description, 
+            Date = t.Date, 
+            Type = t.Type, 
+            MemberId = t.MemberId,
+            Status = t.Status,
+            ResponsibleId = t.ResponsibleId,
+            ResponsibleName = t.Responsible != null ? t.Responsible.Username : null
         };
 
         [HttpGet]
@@ -61,7 +68,15 @@ namespace JovenVision.Api.Controllers
 
             try
             {
-                var tracking = new Tracking { Description = dto.Description, Date = dto.Date, Type = dto.Type, MemberId = dto.MemberId };
+                var tracking = new Tracking 
+                { 
+                    Description = dto.Description, 
+                    Date = dto.Date, 
+                    Type = dto.Type,
+                    MemberId = dto.MemberId,
+                    ResponsibleId = dto.ResponsibleId,
+                    Status = dto.Status ?? "Pending"
+                };
                 await _trackingService.AddAsync(tracking);
                 return CreatedAtAction(nameof(GetById), new { id = tracking.Id },
                     ApiResponse<TrackingResponseDto>.Ok(ToDto(tracking), "Seguimiento creado correctamente."));
@@ -81,7 +96,16 @@ namespace JovenVision.Api.Controllers
 
             try
             {
-                var tracking = new Tracking { Id = id, Description = dto.Description, Date = dto.Date, Type = dto.Type, MemberId = dto.MemberId };
+                var tracking = new Tracking 
+                { 
+                    Id = id, 
+                    Description = dto.Description, 
+                    Date = dto.Date, 
+                    Type = dto.Type, 
+                    MemberId = dto.MemberId,
+                    ResponsibleId = dto.ResponsibleId,
+                    Status = dto.Status
+                };
                 await _trackingService.UpdateAsync(tracking);
                 return Ok(ApiResponse<string>.Ok(null!, "Seguimiento actualizado correctamente."));
             }

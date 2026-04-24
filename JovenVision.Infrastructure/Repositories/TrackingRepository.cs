@@ -32,18 +32,24 @@ namespace JovenVision.Infrastructure.Repositories
 
         public async Task<IEnumerable<Tracking>> GetAllAsync()
         {
-            return await _context.Tracking.ToListAsync();
+            return await _context.Tracking
+                .Include(t => t.Responsible)
+                .ToListAsync();
         }
 
-        public async Task<Tracking> GetByIdAsync(int id)
+        public async Task<Tracking?> GetByIdAsync(int id)
         {
-            return await _context.Tracking.FindAsync(id);
+            return await _context.Tracking
+                .Include(t => t.Responsible)
+                .FirstOrDefaultAsync(t => t.Id == id);
         }
 
         public async Task<IEnumerable<Tracking>> GetByMemberAsync(int memberId)
         {
             return await _context.Tracking
+                .Include(t => t.Responsible)
                 .Where(t => t.MemberId == memberId)
+                .OrderByDescending(t => t.Date)
                 .ToListAsync();
         }
 

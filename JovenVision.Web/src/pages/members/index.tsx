@@ -78,6 +78,7 @@ export const MembersIndex = () => {
         onPageChange={handlePageChange}
         onEdit={(id) => navigate(`/members/edit/${id}`)}
         onDelete={(id) => setMemberToDelete(id)}
+        onFollowup={(id) => navigate(`/followup/member/${id}`)}
       />
 
       <ConfirmModal

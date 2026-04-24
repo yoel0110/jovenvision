@@ -8,5 +8,6 @@ namespace JovenVision.Application.DTOs.Member
         public string? Phone { get; set; }
         public string Status { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; }
     }
 }

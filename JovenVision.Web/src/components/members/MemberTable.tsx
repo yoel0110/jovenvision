@@ -1,4 +1,3 @@
-import React from 'react';
 import type { Member } from '../../types/member';
 
 interface MemberTableProps {
@@ -10,6 +9,7 @@ interface MemberTableProps {
   totalCount: number;
   pageSize: number;
   onPageChange: (page: number) => void;
+  onFollowup: (id: number) => void;
 }
 
 export const MemberTable = ({
@@ -20,7 +20,8 @@ export const MemberTable = ({
   currentPage,
   totalCount,
   pageSize,
-  onPageChange
+  onPageChange,
+  onFollowup
 }: MemberTableProps) => {
   const totalPages = Math.ceil(totalCount / pageSize);
 
@@ -104,12 +105,27 @@ export const MemberTable = ({
                   </span>
                 </td>
                 <td>
-                  <div style={{ fontSize: '0.875rem', fontWeight: '500' }}>
-                    {new Date(member.createdAt).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}
+                  <div style={{ fontSize: '0.875rem', fontWeight: '500', color: '#334155' }}>
+                    {member.createdAt ? (
+                      new Intl.DateTimeFormat('es-ES', { 
+                        day: '2-digit', 
+                        month: 'short', 
+                        year: 'numeric' 
+                      }).format(new Date(member.createdAt.toString().replace(' ', 'T')))
+                    ) : '—'}
                   </div>
                 </td>
                 <td style={{ textAlign: 'right' }}>
                   <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '4px' }}>
+                    <button
+                      onClick={() => onFollowup(member.id)}
+                      className="btn-icon"
+                      title="Seguimiento"
+                      style={{ color: '#2563eb' }}
+                      disabled={loading}
+                    >
+                      <span className="material-symbols-outlined">track_changes</span>
+                    </button>
                     <button
                       onClick={() => onEdit(member.id)}
                       className="btn-icon"
@@ -134,7 +150,7 @@ export const MemberTable = ({
         </table>
       </div>
 
-      {/* Pagination */}
+
       {totalPages > 1 && (
         <div className="pagination">
           <div className="pagination-info">
