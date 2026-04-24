@@ -21,7 +21,8 @@ namespace JovenVision.Application.Services
             Name = m.Name,
             Email = m.Email,
             Phone = m.Phone,
-            Status = m.Status
+            Status = m.Status,
+            CreatedAt = m.CreatedAt
         };
 
         public Task<IEnumerable<Member>> GetAllAsync() =>
