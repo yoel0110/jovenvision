@@ -4,7 +4,6 @@ import type { JovenEvent, EventPayload, EventFilters, EventListResponse } from '
 export const eventsService = {
   getEvents: async (params?: EventFilters): Promise<EventListResponse> => {
     const response = await api.get('/events', { params });
-    // Assuming the API follows the same response pattern: { success: boolean, data: { data: JovenEvent[], totalCount: number, ... } }
     return response.data.data;
   },
 

@@ -13,5 +13,8 @@ namespace JovenVision.Infrastructure.Interfaces
         Task<int> GetAllUsersCount();
         Task<int> GetActiveUsersCount();
 
+        Task<User?> GetAdminAsync();
+
+        Task<User?> GetByMemberIdAsync(int memberId);
     }
 }

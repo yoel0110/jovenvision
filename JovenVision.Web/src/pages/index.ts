@@ -15,3 +15,6 @@ export { MemberAttendanceHistory } from './attendance/member';
 export { default as MemberFollowups } from './followups/member';
 export { Unauthorized } from './Unauthorized';
 export { NotFound } from './NotFound';
+export { default as Users } from './users/index';
+export { default as CreateUser } from './users/create';
+export { default as EditUser } from './users/edit';

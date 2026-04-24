@@ -65,9 +65,9 @@ namespace JovenVision.Application.Services
         public Task<IEnumerable<Attendance>> GetHistoryAsync(int memberId) =>
             _memberRepository.GetHistoryAsync(memberId);
 
-        public async Task<MemberPagedResponseDto> GetPagedAsync(int page, int pageSize, string? search = null, string? status = null)
+        public async Task<MemberPagedResponseDto> GetPagedAsync(int page, int pageSize, string? search = null, string? status = null, bool onlyWithoutUser = false, int? includeMemberId = null)
         {
-            var (items, totalCount) = await _memberRepository.GetPagedAsync(page, pageSize, search, status);
+            var (items, totalCount) = await _memberRepository.GetPagedAsync(page, pageSize, search, status, onlyWithoutUser, includeMemberId);
 
             return new MemberPagedResponseDto
             {

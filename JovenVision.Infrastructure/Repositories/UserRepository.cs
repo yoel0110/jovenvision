@@ -49,12 +49,12 @@ namespace JovenVision.Infrastructure.Repositories
 
         async Task<IEnumerable<User>> IRepository<User>.GetAllAsync()
         {
-            return await _context.Users.ToListAsync();
+            return await _context.Users.Include(u => u.Member).ToListAsync();
         }
 
         async Task<User> IRepository<User>.GetByIdAsync(int id)
         {
-            return await _context.Users.FindAsync(id);
+            return await _context.Users.Include(u => u.Member).FirstOrDefaultAsync(u => u.Id == id);
         }
 
         async Task<User> IUserRepository.GetByUsernameAsync(string username)
@@ -74,6 +74,16 @@ namespace JovenVision.Infrastructure.Repositories
         {
             _context.Users.Update(entity);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<User?> GetAdminAsync()
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.RoleId == 1);
+        }
+
+        public async Task<User?> GetByMemberIdAsync(int memberId)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.MemberId == memberId);
         }
     }
 }

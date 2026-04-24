@@ -22,6 +22,8 @@ export interface MemberFilters {
   status?: string;
   page?: number;
   pageSize?: number;
+  onlyWithoutUser?: boolean;
+  includeMemberId?: number;
 }
 
 export interface MemberListResponse {
