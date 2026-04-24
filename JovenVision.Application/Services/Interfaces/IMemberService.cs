@@ -1,3 +1,4 @@
+using JovenVision.Application.DTOs.Member;
 using JovenVision.Domain.Entities;
 
 namespace JovenVision.Application.Services.Interfaces
@@ -12,5 +13,6 @@ namespace JovenVision.Application.Services.Interfaces
         Task<IEnumerable<Member>> GetByStatusAsync(string status);
         Task<IEnumerable<Member>> GetByGroupAsync(int groupId);
         Task<IEnumerable<Attendance>> GetHistoryAsync(int memberId);
+        Task<MemberPagedResponseDto> GetPagedAsync(int page, int pageSize, string? search = null, string? status = null, bool onlyWithoutUser = false, int? includeMemberId = null);
     }
 }

@@ -1,5 +1,6 @@
 import type { DashboardMetric } from '../../types/dashboard';
 import { MetricCard } from './MetricCard';
+import '../../styles/dashboard.css';
 
 interface MetricGridProps {
   metrics: DashboardMetric[];
@@ -10,12 +11,17 @@ interface MetricGridProps {
 export const MetricGrid = ({ metrics, loading = false, className = '' }: MetricGridProps) => {
   if (loading) {
     return (
-      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${className}`}>
+      <div className="metric-grid">
         {[...Array(6)].map((_, index) => (
-          <div key={index} className="bg-white rounded-lg shadow p-6 animate-pulse">
-            <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-            <div className="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
-            <div className="h-3 bg-gray-200 rounded w-full"></div>
+          <div key={index} className="metric-card skeleton">
+            <div className="skeleton-header">
+              <div className="skeleton-line short"></div>
+              <div className="skeleton-square"></div>
+            </div>
+            <div className="skeleton-line medium"></div>
+            <div className="skeleton-footer">
+              <div className="skeleton-line long"></div>
+            </div>
           </div>
         ))}
       </div>
@@ -24,14 +30,20 @@ export const MetricGrid = ({ metrics, loading = false, className = '' }: MetricG
 
   if (metrics.length === 0) {
     return (
-      <div className={`text-center py-12 ${className}`}>
-        <p className="text-gray-500">No metrics available</p>
+      <div className="empty-state">
+        <div className="empty-icon">
+          <span className="material-symbols-outlined">bar_chart</span>
+        </div>
+        <h3>No hay métricas disponibles</h3>
+        <p>
+          Actualmente no hay métricas para mostrar. Intenta ajustar tus filtros o vuelve a consultarlo más tarde.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${className}`}>
+    <div className="metric-grid animate-fadeInUp">
       {metrics.map((metric) => (
         <MetricCard key={metric.id} metric={metric} />
       ))}

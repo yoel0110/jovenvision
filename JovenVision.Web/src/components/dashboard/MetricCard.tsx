@@ -1,4 +1,5 @@
 import type { DashboardMetric } from '../../types/dashboard';
+import '../../styles/dashboard.css';
 
 interface MetricCardProps {
   metric: DashboardMetric;
@@ -9,47 +10,75 @@ export const MetricCard = ({ metric, className = '' }: MetricCardProps) => {
   const getTrendIcon = (trend?: 'up' | 'down' | 'stable') => {
     switch (trend) {
       case 'up':
-        return 'arrow_upward';
+        return 'trending_up';
       case 'down':
-        return 'arrow_downward';
+        return 'trending_down';
       default:
-        return 'remove';
+        return 'trending_flat';
     }
   };
 
-  const getTrendColor = (trend?: 'up' | 'down' | 'stable') => {
-    switch (trend) {
-      case 'up':
-        return 'text-green-600';
-      case 'down':
-        return 'text-red-600';
-      default:
-        return 'text-gray-600';
+  // Helper methods removed in favor of semantic CSS classes defined in dashboard.css
+
+  const formatValue = (value: number | string, unit?: string) => {
+    if (typeof value === 'number') {
+      if (unit === '%') {
+        return `${value.toFixed(1)}%`;
+      }
+      if (unit === 'min') {
+        return `${value.toFixed(1)} min`;
+      }
+      if (value >= 1000000) {
+        return `${(value / 1000000).toFixed(1)}M`;
+      }
+      if (value >= 1000) {
+        return `${(value / 1000).toFixed(1)}K`;
+      }
+      return value.toLocaleString();
     }
+    return value;
   };
 
   return (
-    <div className={`bg-white rounded-lg shadow p-6 ${className}`}>
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600">{metric.name}</p>
-          <p className="text-2xl font-semibold text-gray-900">
-            {metric.value}
-            {metric.unit && <span className="text-sm text-gray-500 ml-1">{metric.unit}</span>}
-          </p>
-        </div>
-        {metric.trend && (
-          <div className={`flex items-center ${getTrendColor(metric.trend)}`}>
-            <span className="material-icons text-sm">{getTrendIcon(metric.trend)}</span>
-            {metric.change && (
-              <span className="text-sm ml-1">{Math.abs(metric.change)}%</span>
-            )}
+    <div className="metric-card">
+      <div className="metric-header">
+        <div className="metric-info">
+          <p className="metric-label">{metric.name}</p>
+          <div className="metric-value-container">
+            <span className="metric-value">
+              {formatValue(metric.value, metric.unit)}
+            </span>
           </div>
-        )}
+          {metric.change !== undefined && (
+            <div className={`trend-badge ${metric.trend || 'stable'}`}>
+              <span className="material-symbols-outlined">
+                {getTrendIcon(metric.trend)}
+              </span>
+              <span>{metric.change > 0 ? '+' : ''}{metric.change.toFixed(1)}%</span>
+            </div>
+          )}
+        </div>
+        
+        <div className="metric-icon">
+          <span className="material-symbols-outlined">
+            {(metric.id === 'total-users' || metric.id === 'total-members') && 'groups'}
+            {(metric.id === 'active-users' || metric.id === 'active-members') && 'person_check'}
+            {metric.id === 'participation-rate' && 'percent'}
+            {metric.id === 'avg-session-duration' && 'schedule'}
+            {metric.id === 'interactions' && 'handshake'}
+            {(metric.id === 'new-users' || metric.id === 'new-members') && 'person_add'}
+          </span>
+        </div>
       </div>
-      <p className="text-xs text-gray-500 mt-2">
-        Last updated: {metric.lastUpdated.toLocaleString()}
-      </p>
+      
+      <div className="metric-footer">
+        <span className="sync-text">
+          Actualizado el {metric.lastUpdated.toLocaleDateString()}
+        </span>
+        <span className="sync-time">
+          {metric.lastUpdated.toLocaleTimeString()}
+        </span>
+      </div>
     </div>
   );
 };

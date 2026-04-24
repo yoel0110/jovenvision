@@ -1,4 +1,5 @@
 import type { DashboardFilters } from '../../types/dashboard';
+import '../../styles/dashboard.css';
 
 interface DashboardHeaderProps {
   filters: DashboardFilters;
@@ -25,58 +26,90 @@ export const DashboardHeader = ({
     return date.toISOString().split('T')[0];
   };
 
+  const getQuickDateRange = (days: number) => {
+    const end = new Date();
+    const start = new Date(end.getTime() - days * 24 * 60 * 60 * 1000);
+    return { start, end };
+  };
+
   return (
-    <div className="bg-white shadow-sm border-b border-gray-200">
-      <div className="px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-sm text-gray-600">JovenVision Engagement Metrics</p>
+    <div className="header-card">
+      <div className="header-content">
+        <div className="header-info">
+          <div className="header-text">
+            <h1>Dashboard</h1>
+            <p>Análisis de participación de JovenVision</p>
           </div>
           
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <label className="text-sm font-medium text-gray-700">From:</label>
-              <input
-                type="date"
-                value={formatDate(filters.dateRange.start)}
-                onChange={(e) => handleDateRangeChange(
-                  new Date(e.target.value),
-                  filters.dateRange.end
-                )}
-                className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <label className="text-sm font-medium text-gray-700">To:</label>
-              <input
-                type="date"
-                value={formatDate(filters.dateRange.end)}
-                onChange={(e) => handleDateRangeChange(
-                  filters.dateRange.start,
-                  new Date(e.target.value)
-                )}
-                className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            
+          <div className="quick-filters">
             <button
-              onClick={onRefresh}
-              disabled={loading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              onClick={() => onFiltersChange({ dateRange: getQuickDateRange(7) })}
+              className="btn-quick"
             >
-              <span className="material-icons text-sm">refresh</span>
-              <span>{loading ? 'Refreshing...' : 'Refresh'}</span>
+              7 días
+            </button>
+            <button
+              onClick={() => onFiltersChange({ dateRange: getQuickDateRange(30) })}
+              className="btn-quick"
+            >
+              30 días
+            </button>
+            <button
+              onClick={() => onFiltersChange({ dateRange: getQuickDateRange(90) })}
+              className="btn-quick"
+            >
+              90 días
             </button>
           </div>
         </div>
-        
-        {lastRefreshed && (
-          <div className="mt-2 text-xs text-gray-500">
-            Last refreshed: {lastRefreshed.toLocaleString()}
+
+        <button
+          onClick={onRefresh}
+          disabled={loading}
+          className="btn-premium"
+        >
+          {loading ? (
+            <span className="loading-spinner"></span>
+          ) : (
+            <span className="material-symbols-outlined">refresh</span>
+          )}
+          <span>{loading ? 'Cargando...' : 'Actualizar'}</span>
+        </button>
+      </div>
+
+      <div className="filter-section">
+        <div className="date-picker-grid">
+          <div className="date-input-group">
+            <label>Desde</label>
+            <input
+              type="date"
+              value={formatDate(filters.dateRange.start)}
+              onChange={(e) => handleDateRangeChange(
+                new Date(e.target.value),
+                filters.dateRange.end
+              )}
+            />
           </div>
-        )}
+          
+          <div className="date-input-group">
+            <label>Hasta</label>
+            <input
+              type="date"
+              value={formatDate(filters.dateRange.end)}
+              onChange={(e) => handleDateRangeChange(
+                filters.dateRange.start,
+                new Date(e.target.value)
+              )}
+            />
+          </div>
+
+          {lastRefreshed && (
+            <div className="sync-info">
+              <span className="material-symbols-outlined">sync</span>
+              Sincronizado: {lastRefreshed.toLocaleDateString()} {lastRefreshed.toLocaleTimeString()}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -22,21 +22,6 @@ namespace JovenVision.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("GroupMember", b =>
-                {
-                    b.Property<int>("GroupsId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MembersId")
-                        .HasColumnType("int");
-
-                    b.HasKey("GroupsId", "MembersId");
-
-                    b.HasIndex("MembersId");
-
-                    b.ToTable("GroupMember");
-                });
-
             modelBuilder.Entity("JovenVision.Domain.Entities.Attendance", b =>
                 {
                     b.Property<int>("Id")
@@ -84,10 +69,14 @@ namespace JovenVision.Infrastructure.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("GroupId")
+                    b.Property<int?>("GroupId")
                         .HasColumnType("int");
 
                     b.Property<string>("Location")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -128,9 +117,32 @@ namespace JovenVision.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Groups");
+                });
+
+            modelBuilder.Entity("JovenVision.Domain.Entities.GroupMember", b =>
+                {
+                    b.Property<int>("GroupId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MemberId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("GroupId", "MemberId");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("GroupMembers");
                 });
 
             modelBuilder.Entity("JovenVision.Domain.Entities.Member", b =>
@@ -200,6 +212,13 @@ namespace JovenVision.Infrastructure.Migrations
                     b.Property<int>("MemberId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("ResponsibleId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -207,6 +226,8 @@ namespace JovenVision.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("MemberId");
+
+                    b.HasIndex("ResponsibleId");
 
                     b.ToTable("Tracking");
                 });
@@ -240,36 +261,19 @@ namespace JovenVision.Infrastructure.Migrations
 
                     b.HasIndex("MemberId");
 
-                    b.HasIndex("RoleId");
-
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("GroupMember", b =>
-                {
-                    b.HasOne("JovenVision.Domain.Entities.Group", null)
-                        .WithMany()
-                        .HasForeignKey("GroupsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("JovenVision.Domain.Entities.Member", null)
-                        .WithMany()
-                        .HasForeignKey("MembersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("JovenVision.Domain.Entities.Attendance", b =>
                 {
                     b.HasOne("JovenVision.Domain.Entities.Event", "Event")
-                        .WithMany("Attendances")
+                        .WithMany()
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("JovenVision.Domain.Entities.Member", "Member")
-                        .WithMany("Attendances")
+                        .WithMany()
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -283,22 +287,45 @@ namespace JovenVision.Infrastructure.Migrations
                 {
                     b.HasOne("JovenVision.Domain.Entities.Group", "Group")
                         .WithMany("Events")
+                        .HasForeignKey("GroupId");
+
+                    b.Navigation("Group");
+                });
+
+            modelBuilder.Entity("JovenVision.Domain.Entities.GroupMember", b =>
+                {
+                    b.HasOne("JovenVision.Domain.Entities.Group", "Group")
+                        .WithMany("GroupMembers")
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("JovenVision.Domain.Entities.Member", "Member")
+                        .WithMany("GroupMembers")
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Group");
+
+                    b.Navigation("Member");
                 });
 
             modelBuilder.Entity("JovenVision.Domain.Entities.Tracking", b =>
                 {
                     b.HasOne("JovenVision.Domain.Entities.Member", "Member")
-                        .WithMany("Trackings")
+                        .WithMany()
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("JovenVision.Domain.Entities.User", "Responsible")
+                        .WithMany()
+                        .HasForeignKey("ResponsibleId");
+
                     b.Navigation("Member");
+
+                    b.Navigation("Responsible");
                 });
 
             modelBuilder.Entity("JovenVision.Domain.Entities.User", b =>
@@ -307,37 +334,19 @@ namespace JovenVision.Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("MemberId");
 
-                    b.HasOne("JovenVision.Domain.Entities.Role", "Role")
-                        .WithMany("Users")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Member");
-
-                    b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("JovenVision.Domain.Entities.Event", b =>
-                {
-                    b.Navigation("Attendances");
                 });
 
             modelBuilder.Entity("JovenVision.Domain.Entities.Group", b =>
                 {
                     b.Navigation("Events");
+
+                    b.Navigation("GroupMembers");
                 });
 
             modelBuilder.Entity("JovenVision.Domain.Entities.Member", b =>
                 {
-                    b.Navigation("Attendances");
-
-                    b.Navigation("Trackings");
-                });
-
-            modelBuilder.Entity("JovenVision.Domain.Entities.Role", b =>
-                {
-                    b.Navigation("Users");
+                    b.Navigation("GroupMembers");
                 });
 #pragma warning restore 612, 618
         }

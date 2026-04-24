@@ -38,8 +38,8 @@ namespace JovenVision.Infrastructure.Repositories
         public async Task<IEnumerable<Member>> GetByGroupAsync(int groupId)
         {
             return await _context.Members
-                .Include(m => m.Groups)
-                .Where(m => m.Groups.Any(g => g.Id == groupId))
+                .Include(m => m.GroupMembers)
+                .Where(m => m.GroupMembers.Any(gm => gm.GroupId == groupId))
                 .ToListAsync();
         }
 
@@ -66,6 +66,37 @@ namespace JovenVision.Infrastructure.Repositories
         {
             _context.Members.Update(entity);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<(IEnumerable<Member> Items, int TotalCount)> GetPagedAsync(int page, int pageSize, string? search = null, string? status = null, bool onlyWithoutUser = false, int? includeMemberId = null)
+        {
+            var query = _context.Members.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(m => m.Name.Contains(search) || m.Email.Contains(search));
+            }
+
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                query = query.Where(m => m.Status == status);
+            }
+
+            if (onlyWithoutUser)
+            {
+                query = query.Where(m => 
+                    (includeMemberId.HasValue && m.Id == includeMemberId.Value) ||
+                    !_context.Users.Any(u => u.MemberId == m.Id));
+            }
+
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .OrderByDescending(m => m.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
         }
     }
 }

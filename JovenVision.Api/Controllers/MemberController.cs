@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace JovenVision.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/members")]
     [Authorize]
     public class MemberController : ControllerBase
     {
@@ -22,14 +22,25 @@ namespace JovenVision.Api.Controllers
 
         private static MemberResponseDto ToDto(Member m) => new()
         {
-            Id = m.Id, Name = m.Name, Email = m.Email, Phone = m.Phone, Status = m.Status
+            Id = m.Id,
+            Name = m.Name,
+            Email = m.Email,
+            Phone = m.Phone,
+            Status = m.Status,
+            CreatedAt = m.CreatedAt
         };
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? search = null,
+            [FromQuery] string? status = null,
+            [FromQuery] bool onlyWithoutUser = false,
+            [FromQuery] int? includeMemberId = null)
         {
-            var members = await _memberService.GetAllAsync();
-            return Ok(ApiResponse<IEnumerable<MemberResponseDto>>.Ok(members.Select(ToDto)));
+            var result = await _memberService.GetPagedAsync(page, pageSize, search, status, onlyWithoutUser, includeMemberId);
+            return Ok(ApiResponse<MemberPagedResponseDto>.Ok(result));
         }
 
         [HttpGet("{id}")]

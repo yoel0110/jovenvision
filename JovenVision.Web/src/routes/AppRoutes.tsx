@@ -2,13 +2,7 @@ import { Routes, Route, Navigate } from 'react-router';
 import { ProtectedRoute } from './ProtectedRoute';
 import { MainLayout } from '../layouts/MainLayout';
 import { PublicLayout } from '../layouts/PublicLayout';
-import { Login } from '../pages/Login';
-import { Dashboard } from '../pages/Dashboard';
-import { Members } from '../pages/Members';
-import { Groups } from '../pages/Groups';
-import { Events } from '../pages/Events';
-import { Unauthorized } from '../pages/Unauthorized';
-import { NotFound } from '../pages/NotFound';
+import { Login, Dashboard, Members, CreateMember, EditMember, Groups, CreateGroup, EditGroup, GroupMembers, Events, CreateEvent, EditEvent, AttendanceByEvent, MemberAttendanceHistory, MemberFollowups, Unauthorized, NotFound, Users, CreateUser, EditUser } from '../pages';
 
 export const AppRoutes = () => {
   return (
@@ -22,13 +16,26 @@ export const AppRoutes = () => {
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/members" element={<Members />} />
+          <Route path="/members/create" element={<CreateMember />} />
+          <Route path="/members/edit/:id" element={<EditMember />} />
           <Route path="/groups" element={<Groups />} />
+          <Route path="/groups/create" element={<CreateGroup />} />
+          <Route path="/groups/edit/:id" element={<EditGroup />} />
+          <Route path="/groups/:id/members" element={<GroupMembers />} />
           <Route path="/events" element={<Events />} />
+          <Route path="/events/create" element={<CreateEvent />} />
+          <Route path="/events/edit/:id" element={<EditEvent />} />
+          <Route path="/attendance/event" element={<AttendanceByEvent />} />
+          <Route path="/attendance/member" element={<MemberAttendanceHistory />} />
+          <Route path="/followup/member/:memberId" element={<MemberFollowups />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/users/new" element={<CreateUser />} />
+          <Route path="/users/:id/edit" element={<EditUser />} />
         </Route>
       </Route>
 
       <Route path="/unauthorized" element={<Unauthorized />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
-  );
+      );
 };

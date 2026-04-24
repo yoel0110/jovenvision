@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { getToken, removeToken } from '../utils/token';
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5090',
+export const api = axios.create({
+  baseURL: (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5090').replace(/\/$/, '') + '/api',
   headers: {
     'Content-Type': 'application/json',
   },

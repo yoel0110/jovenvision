@@ -1,0 +1,15 @@
+/* Users Module Styles */
+
+/* Form card: wraps the user form with consistent card styling */
+.form-card {
+  background: white;
+  border-radius: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+/* Small filter group: used for role/status selects */
+.filter-group.small {
+  flex: 0 0 200px;
+}

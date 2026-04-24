@@ -1,5 +1,6 @@
 import { useDashboard } from '../hooks/useDashboard';
 import { DashboardHeader, MetricGrid } from '../components/dashboard';
+import '../styles/dashboard.css';
 
 export const Dashboard = () => {
   const {
@@ -14,18 +15,20 @@ export const Dashboard = () => {
 
   if (error) {
     return (
-      <div className="page">
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <span className="material-icons text-red-400">error</span>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">Error loading dashboard</h3>
-              <div className="mt-2 text-sm text-red-700">
-                <p>{error}</p>
-              </div>
-            </div>
+      <div className="dashboard-container">
+        <div className="error-banner animate-fadeInUp">
+          <span className="material-symbols-outlined">error</span>
+          <div>
+            <h3>Error al cargar el tablero</h3>
+            <p>{error}</p>
+            <button 
+              onClick={refreshData}
+              className="btn-premium"
+              style={{ marginTop: '16px' }}
+            >
+              <span className="material-symbols-outlined">refresh</span>
+              <span>Reintentar</span>
+            </button>
           </div>
         </div>
       </div>
@@ -33,7 +36,7 @@ export const Dashboard = () => {
   }
 
   return (
-    <div className="page">
+    <div className="dashboard-container animate-fadeInUp">
       <DashboardHeader
         filters={filters}
         onFiltersChange={updateFilters}
@@ -42,9 +45,9 @@ export const Dashboard = () => {
         lastRefreshed={lastRefreshed}
       />
       
-      <div className="px-6 py-6">
+      <div className="metric-section">
         <MetricGrid metrics={metrics} loading={loading} />
       </div>
     </div>
   );
-  };
+};

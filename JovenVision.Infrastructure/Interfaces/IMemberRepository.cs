@@ -1,4 +1,4 @@
-﻿using JovenVision.Domain.Entities;
+using JovenVision.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,5 +10,6 @@ namespace JovenVision.Infrastructure.Interfaces
         Task<IEnumerable<Member>> GetByStatusAsync(string status);
         Task<IEnumerable<Member>> GetByGroupAsync(int groupId);
         Task<IEnumerable<Attendance>> GetHistoryAsync(int memberId);
+        Task<(IEnumerable<Member> Items, int TotalCount)> GetPagedAsync(int page, int pageSize, string? search = null, string? status = null, bool onlyWithoutUser = false, int? includeMemberId = null);
     }
 }

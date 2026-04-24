@@ -10,6 +10,7 @@ namespace JovenVision.Application.Services.Interfaces
         Task UpdateAsync(User user);
         Task DeleteAsync(int id);
         Task<User> GetByUsernameAsync(string username);
+        Task<User> GetByEmailAsync(string email);
         Task<bool> ExistsAsync(string username);
     }
 }

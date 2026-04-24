@@ -41,6 +41,8 @@ namespace JovenVision.Application.Services
             existing.Date = tracking.Date;
             existing.Type = tracking.Type;
             existing.MemberId = tracking.MemberId;
+            existing.Status = tracking.Status;
+            existing.ResponsibleId = tracking.ResponsibleId;
             await _trackingRepository.UpdateAsync(existing);
         }
 

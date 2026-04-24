@@ -79,3 +79,78 @@ export interface ChartData {
     borderColor?: string;
   }[];
 }
+
+export interface MemberActivity {
+  memberId: number;
+  memberName: string;
+  lastAttendanceDate: Date | null;
+  totalAttendances: number;
+  attendancesLast7Days: number;
+  attendancesLast30Days: number;
+  status: 'active' | 'inactive' | 'at-risk';
+  riskLevel: 'low' | 'medium' | 'high';
+}
+
+export interface GroupParticipation {
+  groupId: number;
+  groupName: string;
+  totalMembers: number;
+  activeMembers: number;
+  averageAttendanceRate: number;
+  participationLevel: 'high' | 'medium' | 'low';
+}
+
+export interface EventConfirmation {
+  eventId: number;
+  eventTitle: string;
+  eventDate: Date;
+  totalInvited: number;
+  confirmedAttendances: number;
+  confirmationRate: number;
+  confirmationLevel: 'high' | 'medium' | 'low';
+}
+
+export interface RetentionMetrics {
+  period: '7-days' | '30-days';
+  totalMembers: number;
+  retainedMembers: number;
+  newMembers: number;
+  churnedMembers: number;
+  retentionRate: number;
+  churnRate: number;
+}
+
+export interface DashboardKPIs {
+  totalMembers: number;
+  activeMembers: number;
+  inactiveMembers: number;
+  overallAttendanceRate: number;
+  membersAtRisk: number;
+  groupsLowParticipation: number;
+  eventsLowConfirmation: number;
+  retention7Days: RetentionMetrics;
+  retention30Days: RetentionMetrics;
+}
+
+export interface MemberRiskFactors {
+  daysSinceLastAttendance: number;
+  attendanceFrequency: number;
+  participationTrend: 'increasing' | 'stable' | 'decreasing';
+  riskScore: number;
+  riskReasons: string[];
+}
+
+export interface ActivityThresholds {
+  inactiveDaysThreshold: number;
+  riskDaysThreshold: number;
+  lowAttendanceRateThreshold: number;
+  lowConfirmationRateThreshold: number;
+}
+
+export interface MetricCalculationRule {
+  name: string;
+  description: string;
+  formula: string;
+  parameters: Record<string, any>;
+  category: 'participation' | 'retention' | 'risk' | 'engagement';
+}

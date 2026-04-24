@@ -16,5 +16,8 @@ namespace JovenVision.Application.DTOs.Tracking
 
         [Required(ErrorMessage = "El miembro es obligatorio.")]
         public int MemberId { get; set; }
+        
+        public int? ResponsibleId { get; set; }
+        public string Status { get; set; } = "Pending";
     }
 }

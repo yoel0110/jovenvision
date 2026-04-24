@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthContext';
 
 export const Login = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login } = useAuth();
@@ -13,7 +13,7 @@ export const Login = () => {
     e.preventDefault();
     setError('');
     try {
-      await login(username, password);
+      await login(email, password);
       navigate('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
@@ -28,12 +28,12 @@ export const Login = () => {
         {error && <div className="login-error">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="username">Usuario</label>
+            <label htmlFor="email">Correo Electrónico</label>
             <input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>

@@ -13,7 +13,7 @@ import { authService } from '../services';
 interface AuthContextType {
   user: AuthUser | null;
   loading: boolean;
-  login: (username: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadUserFromToken = () => {
+    const initAuth = async () => {
       const token = getToken();
 
       if (!token) {
@@ -32,21 +32,50 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      // Simple token existence check - let backend handle validation
-      setUser({
-        username: 'user', // Will be updated after first API call
-        role: 'user',
-        token,
-        expiresAt: new Date(), // Will be updated after login
-      });
-      setLoading(false);
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const id = payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || payload.nameid || 0;
+        const role = payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || payload.role || 'user';
+        const username = payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || payload.unique_name || 'user';
+
+        setUser({
+          id: parseInt(id, 10),
+          username,
+          role,
+          token,
+          expiresAt: new Date(payload.exp * 1000),
+        });
+      } catch (e) {
+        removeToken();
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await authService.me();
+        
+        if (response.success && response.data) {
+          setUser(prev => prev ? {
+            ...prev,
+            id: response.data.id || response.data.Id || prev.id,
+            username: response.data.username || response.data.Username || prev.username,
+            role: response.data.role || response.data.Role || prev.role
+          } : null);
+        } else {
+          logout();
+        }
+      } catch (e) {
+        // En caso de error de red, mantenemos la sesión local
+      } finally {
+        setLoading(false);
+      }
     };
 
-    loadUserFromToken();
+    initAuth();
   }, []);
 
-  const login = async (username: string, password: string) => {
-    const response = await authService.login({ username, password });
+  const login = async (email: string, password: string) => {
+    const response = await authService.login({ email, password });
 
     if (!response.success || !response.data) {
       throw new Error(response.message || 'Error al iniciar sesión');
@@ -55,6 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setToken(response.data.token);
 
     setUser({
+      id: response.data.id,
       username: response.data.username,
       role: response.data.role,
       token: response.data.token,
