@@ -29,7 +29,7 @@ namespace JovenVision.Api.Controllers
                 return BadRequest(ApiResponse<LoginResponseDto>.Fail("Datos inválidos.",
                     ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
 
-            var user = await _userService.GetByUsernameAsync(dto.Username);
+            var user = await _userService.GetByEmailAsync(dto.Email);
             if (user is null)
                 return Unauthorized(ApiResponse<LoginResponseDto>.Fail("Credenciales incorrectas."));
 

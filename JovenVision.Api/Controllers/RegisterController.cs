@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace JovenVision.Api.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
+    //[ApiController]
+    //[Route("api/[controller]")]
     public class RegisterController : ControllerBase
     {
         private readonly IUserService _userService;

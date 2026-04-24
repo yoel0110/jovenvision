@@ -48,6 +48,9 @@ namespace JovenVision.Application.Services
         public Task<User> GetByUsernameAsync(string username) =>
             _userRepository.GetByUsernameAsync(username);
 
+        public Task<User> GetByEmailAsync(string email) =>
+            _userRepository.GetByEmailAsync(email);
+
         public Task<bool> ExistsAsync(string username) =>
             _userRepository.ExistsAsync(username);
     }

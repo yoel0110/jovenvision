@@ -62,6 +62,14 @@ namespace JovenVision.Infrastructure.Repositories
             return await (_context.Users.FirstOrDefaultAsync(u => u.Username == username));
         }
 
+        async Task<User> IUserRepository.GetByEmailAsync(string email)
+        {
+            return await (from u in _context.Users
+                          join m in _context.Members on u.MemberId equals m.Id
+                          where m.Email == email
+                          select u).FirstOrDefaultAsync();
+        }
+
         async Task IRepository<User>.UpdateAsync(User entity)
         {
             _context.Users.Update(entity);

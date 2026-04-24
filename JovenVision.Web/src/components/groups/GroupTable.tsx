@@ -1,4 +1,3 @@
-import React from 'react';
 import type { Group } from '../../types/group';
 
 interface GroupTableProps {

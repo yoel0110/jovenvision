@@ -13,7 +13,7 @@ import { authService } from '../services';
 interface AuthContextType {
   user: AuthUser | null;
   loading: boolean;
-  login: (username: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -56,8 +56,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     loadUserFromToken();
   }, []);
 
-  const login = async (username: string, password: string) => {
-    const response = await authService.login({ username, password });
+  const login = async (email: string, password: string) => {
+    const response = await authService.login({ email, password });
 
     if (!response.success || !response.data) {
       throw new Error(response.message || 'Error al iniciar sesión');
