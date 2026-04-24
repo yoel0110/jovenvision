@@ -6,8 +6,6 @@ export const groupsService = {
     const response = await api.get('/groups', { params });
     const data = response.data.data;
     
-    // The backend currently returns a raw array in the 'data' field.
-    // We synthesize the GroupListResponse structure to keep the UI components working.
     if (Array.isArray(data)) {
       return {
         data: data,

@@ -3,7 +3,9 @@ using JovenVision.Application.Common;
 using JovenVision.Application.DTOs.Auth;
 using JovenVision.Application.Services.Interfaces;
 using JovenVision.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace JovenVision.Api.Controllers
 {
@@ -55,6 +57,35 @@ namespace JovenVision.Api.Controllers
                 Role = roleName,
                 ExpiresAt = expiresAt
             }, "Login exitoso."));
+        }
+
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<IActionResult> GetMe()
+        {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdStr, out int userId))
+                return Unauthorized(ApiResponse<object>.Fail("Token inválido."));
+
+            try
+            {
+                var user = await _userService.GetByIdAsync(userId);
+                if (user == null || !user.Active)
+                    return Unauthorized(ApiResponse<object>.Fail("Usuario no encontrado o inactivo."));
+
+                var roleName = User.FindFirst(ClaimTypes.Role)?.Value ?? "Leader";
+
+                return Ok(ApiResponse<object>.Ok(new
+                {
+                    Id = user.Id,
+                    Username = user.Username,
+                    Role = roleName
+                }));
+            }
+            catch (NotFoundException)
+            {
+                return Unauthorized(ApiResponse<object>.Fail("Usuario no encontrado."));
+            }
         }
     }
 }

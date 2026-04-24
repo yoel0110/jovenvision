@@ -68,7 +68,7 @@ namespace JovenVision.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<(IEnumerable<Member> Items, int TotalCount)> GetPagedAsync(int page, int pageSize, string? search = null, string? status = null)
+        public async Task<(IEnumerable<Member> Items, int TotalCount)> GetPagedAsync(int page, int pageSize, string? search = null, string? status = null, bool onlyWithoutUser = false, int? includeMemberId = null)
         {
             var query = _context.Members.AsQueryable();
 
@@ -80,6 +80,13 @@ namespace JovenVision.Infrastructure.Repositories
             if (!string.IsNullOrWhiteSpace(status))
             {
                 query = query.Where(m => m.Status == status);
+            }
+
+            if (onlyWithoutUser)
+            {
+                query = query.Where(m => 
+                    (includeMemberId.HasValue && m.Id == includeMemberId.Value) ||
+                    !_context.Users.Any(u => u.MemberId == m.Id));
             }
 
             var totalCount = await query.CountAsync();

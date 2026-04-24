@@ -19,16 +19,21 @@ namespace JovenVision.Api.Controllers
             _userService = userService;
         }
 
-        private static UserResponseDto ToDto(User u) => new()
+        private static UserDetailsResponseDto ToDto(User u) => new()
         {
-            Id = u.Id, Username = u.Username, Active = u.Active, RoleId = u.RoleId, MemberId = u.MemberId
+            Id = u.Id,
+            Username = u.Username,
+            Active = u.Active,
+            RoleId = u.RoleId,
+            MemberId = u.MemberId,
+            MemberName = u.Member?.Name
         };
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var users = await _userService.GetAllAsync();
-            return Ok(ApiResponse<IEnumerable<UserResponseDto>>.Ok(users.Select(ToDto)));
+            return Ok(ApiResponse<IEnumerable<UserDetailsResponseDto>>.Ok(users.Select(ToDto)));
         }
 
         [HttpGet("{id}")]
@@ -37,11 +42,11 @@ namespace JovenVision.Api.Controllers
             try
             {
                 var user = await _userService.GetByIdAsync(id);
-                return Ok(ApiResponse<UserResponseDto>.Ok(ToDto(user)));
+                return Ok(ApiResponse<UserDetailsResponseDto>.Ok(ToDto(user)));
             }
             catch (NotFoundException ex)
             {
-                return NotFound(ApiResponse<UserResponseDto>.Fail(ex.Message));
+                return NotFound(ApiResponse<UserDetailsResponseDto>.Fail(ex.Message));
             }
         }
 
@@ -49,31 +54,38 @@ namespace JovenVision.Api.Controllers
         public async Task<IActionResult> Create([FromBody] UserRequestDto dto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ApiResponse<UserResponseDto>.Fail("Datos inválidos.",
+                return BadRequest(ApiResponse<UserDetailsResponseDto>.Fail("Datos inválidos.",
                     ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
 
             bool exists = await _userService.ExistsAsync(dto.Username);
             if (exists)
-                return Conflict(ApiResponse<UserResponseDto>.Fail("El nombre de usuario ya está en uso."));
+                return Conflict(ApiResponse<UserDetailsResponseDto>.Fail("El nombre de usuario ya está en uso."));
 
-            var user = new User
+            try
             {
-                Username = dto.Username,
-                PasswordHash = HashPassword(dto.Password),
-                Active = true,
-                RoleId = dto.RoleId,
-                MemberId = dto.MemberId
-            };
-            await _userService.AddAsync(user);
-            return CreatedAtAction(nameof(GetById), new { id = user.Id },
-                ApiResponse<UserResponseDto>.Ok(ToDto(user), "Usuario creado correctamente."));
+                var user = new User
+                {
+                    Username = dto.Username,
+                    PasswordHash = HashPassword(dto.Password),
+                    Active = true,
+                    RoleId = dto.RoleId,
+                    MemberId = dto.MemberId
+                };
+                await _userService.AddAsync(user);
+                return CreatedAtAction(nameof(GetById), new { id = user.Id },
+                    ApiResponse<UserDetailsResponseDto>.Ok(ToDto(user), "Usuario creado correctamente."));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ApiResponse<UserDetailsResponseDto>.Fail(ex.Message));
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UserRequestDto dto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ApiResponse<UserResponseDto>.Fail("Datos inválidos.",
+                return BadRequest(ApiResponse<string>.Fail("Datos inválidos.",
                     ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
 
             try
@@ -85,6 +97,10 @@ namespace JovenVision.Api.Controllers
             catch (NotFoundException ex)
             {
                 return NotFound(ApiResponse<string>.Fail(ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ApiResponse<string>.Fail(ex.Message));
             }
         }
 

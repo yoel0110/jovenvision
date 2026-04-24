@@ -8,5 +8,6 @@ namespace JovenVision.Domain.Entities
         public bool Active { get; set; }
         public int RoleId { get; set; }
         public int? MemberId { get; set; }
+        public virtual Member? Member { get; set; }
     }
 }

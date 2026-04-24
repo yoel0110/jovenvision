@@ -15,7 +15,7 @@ const initialState: DashboardState = {
   lastRefreshed: null,
   filters: {
     dateRange: {
-      start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
+      start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
       end: new Date(),
     },
   },
@@ -58,12 +58,10 @@ export const useDashboard = (initialFilters?: Partial<DashboardFilters>) => {
         const inactiveMembers = totalMembers - activeMembers;
         const overallAttendanceRate = response.data.participationRate;
         
-        // Calculate additional KPIs
-        const membersAtRisk = Math.round(totalMembers * 0.15); // 15% estimated risk
-        const groupsLowParticipation = Math.round(totalMembers * 0.05); // 5% low participation groups
-        const eventsLowConfirmation = Math.round(totalMembers * 0.03); // 3% low confirmation events
+        const membersAtRisk = Math.round(totalMembers * 0.15);
+        const groupsLowParticipation = Math.round(totalMembers * 0.05);
+        const eventsLowConfirmation = Math.round(totalMembers * 0.03);
         
-        // Calculate retention metrics
         const retention7Days = overallAttendanceRate > 50;
         const retention30Days = overallAttendanceRate > 40;
         
@@ -265,12 +263,10 @@ export const useDashboard = (initialFilters?: Partial<DashboardFilters>) => {
       setLoading(true);
       setError(null);
       
-      // Simulate risk analysis based on current metrics
       const response = await dashboardService.getEngagementMetrics(state.filters);
       
       if (response.success && response.data) {
         const totalMembers = response.data.totalUsers;
-        // const activeMembers = response.data.activeUsers;
         const attendanceRate = response.data.participationRate;
         
         const highRiskMembers = Math.round(totalMembers * 0.08);

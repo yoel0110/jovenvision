@@ -2,7 +2,7 @@ import { Routes, Route, Navigate } from 'react-router';
 import { ProtectedRoute } from './ProtectedRoute';
 import { MainLayout } from '../layouts/MainLayout';
 import { PublicLayout } from '../layouts/PublicLayout';
-import { Login, Dashboard, Members, CreateMember, EditMember, Groups, CreateGroup, EditGroup, GroupMembers, Events, CreateEvent, EditEvent, AttendanceByEvent, MemberAttendanceHistory, MemberFollowups, Unauthorized, NotFound } from '../pages';
+import { Login, Dashboard, Members, CreateMember, EditMember, Groups, CreateGroup, EditGroup, GroupMembers, Events, CreateEvent, EditEvent, AttendanceByEvent, MemberAttendanceHistory, MemberFollowups, Unauthorized, NotFound, Users, CreateUser, EditUser } from '../pages';
 
 export const AppRoutes = () => {
   return (
@@ -28,6 +28,9 @@ export const AppRoutes = () => {
           <Route path="/attendance/event" element={<AttendanceByEvent />} />
           <Route path="/attendance/member" element={<MemberAttendanceHistory />} />
           <Route path="/followup/member/:memberId" element={<MemberFollowups />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/users/new" element={<CreateUser />} />
+          <Route path="/users/:id/edit" element={<EditUser />} />
         </Route>
       </Route>
 

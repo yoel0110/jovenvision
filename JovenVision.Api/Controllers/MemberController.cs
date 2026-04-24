@@ -35,9 +35,11 @@ namespace JovenVision.Api.Controllers
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10,
             [FromQuery] string? search = null,
-            [FromQuery] string? status = null)
+            [FromQuery] string? status = null,
+            [FromQuery] bool onlyWithoutUser = false,
+            [FromQuery] int? includeMemberId = null)
         {
-            var result = await _memberService.GetPagedAsync(page, pageSize, search, status);
+            var result = await _memberService.GetPagedAsync(page, pageSize, search, status, onlyWithoutUser, includeMemberId);
             return Ok(ApiResponse<MemberPagedResponseDto>.Ok(result));
         }
 
